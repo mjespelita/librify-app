@@ -138,7 +138,7 @@
          <div class="col-md-4 col-sm-12 col-lg-4">
             <div class="card">
                <div class="card-body">
-                  <h5 class="card-title">Total Technicians</h5>
+                  <h5 class="card-title">Total Employees</h5>
                   <h1>
                      <i class="fas fa-users"></i>
                      {{ App\Models\User::whereNot('role', 'admin')->count() }}
