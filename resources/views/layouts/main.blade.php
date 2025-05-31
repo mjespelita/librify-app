@@ -49,7 +49,7 @@
                 <a href='{{ url('sites') }}' class='{{ request()->is('sites', 'trash-sites', 'create-sites', 'show-sites/*', 'edit-sites/*', 'delete-sites/*', 'sites-search*') ? 'active' : '' }}'>
                     <i class='fas fa-house'></i> Sites
                 </a>
-                
+
                 <a href='{{ url('types') }}' class='{{ request()->is('types', 'trash-types', 'create-types', 'show-types/*', 'edit-types/*', 'delete-types/*', 'types-search*') ? 'active' : '' }}'>
                     <i class='fas fa-cogs'></i> Types
                 </a>
@@ -69,36 +69,36 @@
                 <a href='{{ url('itemlogs') }}' class='{{ request()->is('itemlogs', 'trash-itemlogs', 'create-itemlogs', 'show-itemlogs/*', 'edit-itemlogs/*', 'delete-itemlogs/*', 'itemlogs-search*') ? 'active' : '' }}'>
                     <i class='fas fa-bars'></i> Item Logs
                 </a>
-                
+
                 <a href='{{ url('logs') }}' class='{{ request()->is('logs', 'create-logs', 'show-logs/*', 'edit-logs/*', 'delete-logs/*', 'logs-search*') ? 'active' : '' }}'>
                     <i class='fas fa-clipboard-list'></i> Logs
                 </a>
-                
+
                 <div class="p-3">
                     <b>Task Management</b>
                 </div>
 
-                <a href='{{ url('workspaces') }}' 
+                <a href='{{ url('workspaces') }}'
                 class='{{ request()->is('workspaces', 'trash-workspaces', 'create-workspaces', 'show-workspaces/*', 'edit-workspaces/*', 'delete-workspaces/*', 'workspaces-search*') ? 'active' : '' }}'>
                 <i class='fas fa-building'></i> Workspaces
                 </a>
 
-                <a href='{{ url('projects') }}' 
+                <a href='{{ url('projects') }}'
                 class='{{ request()->is('projects', 'trash-projects', 'create-projects', 'show-projects/*', 'edit-projects/*', 'delete-projects/*', 'projects-search*') ? 'active' : '' }}'>
                 <i class='fas fa-folder'></i> Projects
                 </a>
 
-                <a href='{{ url('tasks') }}' 
+                <a href='{{ url('tasks') }}'
                 class='{{ request()->is('tasks', 'trash-tasks', 'create-tasks', 'show-tasks/*', 'edit-tasks/*', 'delete-tasks/*', 'tasks-search*') ? 'active' : '' }}'>
                 <i class='fas fa-tasks'></i> Tasks
                 </a>
 
-                <a href='{{ url('notifications') }}' 
+                <a href='{{ url('notifications') }}'
                 class='{{ request()->is('notifications', 'trash-notifications', 'create-notifications', 'show-notifications/*', 'edit-notifications/*', 'delete-notifications/*', 'notifications-search*') ? 'active' : '' }}'>
                 <i class='fas fa-bell'></i> Notifications
                 </a>
 
-                <div class="p-3">
+                {{-- <div class="p-3">
                     <b>Omada API</b>
                 </div>
 
@@ -112,7 +112,7 @@
 
                 <a href='{{ url('omada-audit-logs') }}' class='{{ request()->is('omada-audit-logs') ? 'active' : '' }}'>
                     <i class='fas fa-bars'></i> Omada Audit Logs
-                </a>
+                </a> --}}
             @endif
 
             @if (Auth::user()->role === 'warehouse_admin')
@@ -127,7 +127,7 @@
                 <a href='{{ url('sites') }}' class='{{ request()->is('sites', 'trash-sites', 'create-sites', 'show-sites/*', 'edit-sites/*', 'delete-sites/*', 'sites-search*') ? 'active' : '' }}'>
                     <i class='fas fa-house'></i> Sites
                 </a>
-                
+
                 <a href='{{ url('types') }}' class='{{ request()->is('types', 'trash-types', 'create-types', 'show-types/*', 'edit-types/*', 'delete-types/*', 'types-search*') ? 'active' : '' }}'>
                     <i class='fas fa-cogs'></i> Types
                 </a>
@@ -147,58 +147,58 @@
                 <a href='{{ url('itemlogs') }}' class='{{ request()->is('itemlogs', 'trash-itemlogs', 'create-itemlogs', 'show-itemlogs/*', 'edit-itemlogs/*', 'delete-itemlogs/*', 'itemlogs-search*') ? 'active' : '' }}'>
                     <i class='fas fa-bars'></i> Item Logs
                 </a>
-                
+
                 <a href='{{ url('logs') }}' class='{{ request()->is('logs', 'create-logs', 'show-logs/*', 'edit-logs/*', 'delete-logs/*', 'logs-search*') ? 'active' : '' }}'>
                     <i class='fas fa-clipboard-list'></i> Logs
                 </a>
-                
+
                 <div class="p-3">
                     <b>Task Management</b>
                 </div>
 
-                <a href='{{ url('workspaces') }}' 
+                <a href='{{ url('workspaces') }}'
                 class='{{ request()->is('workspaces', 'trash-workspaces', 'create-workspaces', 'show-workspaces/*', 'edit-workspaces/*', 'delete-workspaces/*', 'workspaces-search*') ? 'active' : '' }}'>
                 <i class='fas fa-building'></i> Workspaces
                 </a>
 
-                <a href='{{ url('projects') }}' 
+                <a href='{{ url('projects') }}'
                 class='{{ request()->is('projects', 'trash-projects', 'create-projects', 'show-projects/*', 'edit-projects/*', 'delete-projects/*', 'projects-search*') ? 'active' : '' }}'>
                 <i class='fas fa-folder'></i> Projects
                 </a>
 
-                <a href='{{ url('tasks') }}' 
+                <a href='{{ url('tasks') }}'
                 class='{{ request()->is('tasks', 'trash-tasks', 'create-tasks', 'show-tasks/*', 'edit-tasks/*', 'delete-tasks/*', 'tasks-search*') ? 'active' : '' }}'>
                 <i class='fas fa-tasks'></i> Tasks
                 </a>
 
-                <a href='{{ url('notifications') }}' 
+                <a href='{{ url('notifications') }}'
                 class='{{ request()->is('notifications', 'trash-notifications', 'create-notifications', 'show-notifications/*', 'edit-notifications/*', 'delete-notifications/*', 'notifications-search*') ? 'active' : '' }}'>
                 <i class='fas fa-bell'></i> Notifications
                 </a>
             @endif
 
             @if (Auth::user()->role === 'office_admin')
-                
+
                 <div class="p-3">
                     <b>Task Management</b>
                 </div>
 
-                <a href='{{ url('workspaces') }}' 
+                <a href='{{ url('workspaces') }}'
                 class='{{ request()->is('workspaces', 'trash-workspaces', 'create-workspaces', 'show-workspaces/*', 'edit-workspaces/*', 'delete-workspaces/*', 'workspaces-search*') ? 'active' : '' }}'>
                 <i class='fas fa-building'></i> Workspaces
                 </a>
 
-                <a href='{{ url('projects') }}' 
+                <a href='{{ url('projects') }}'
                 class='{{ request()->is('projects', 'trash-projects', 'create-projects', 'show-projects/*', 'edit-projects/*', 'delete-projects/*', 'projects-search*') ? 'active' : '' }}'>
                 <i class='fas fa-folder'></i> Projects
                 </a>
 
-                <a href='{{ url('tasks') }}' 
+                <a href='{{ url('tasks') }}'
                 class='{{ request()->is('tasks', 'trash-tasks', 'create-tasks', 'show-tasks/*', 'edit-tasks/*', 'delete-tasks/*', 'tasks-search*') ? 'active' : '' }}'>
                 <i class='fas fa-tasks'></i> Tasks
                 </a>
 
-                <a href='{{ url('notifications') }}' 
+                <a href='{{ url('notifications') }}'
                 class='{{ request()->is('notifications', 'trash-notifications', 'create-notifications', 'show-notifications/*', 'edit-notifications/*', 'delete-notifications/*', 'notifications-search*') ? 'active' : '' }}'>
                 <i class='fas fa-bell'></i> Notifications
                 </a>
@@ -225,17 +225,17 @@
                     <b>Task Management</b>
                 </div>
 
-                <a href='{{ url('my-tasks') }}' 
+                <a href='{{ url('my-tasks') }}'
                     class='{{ request()->is('my-tasks', 'show-tasks/*', 'trash-my-tasks', 'create-my-tasks', 'show-my-tasks/*', 'edit-my-tasks/*', 'delete-my-tasks/*', 'my-tasks-search*') ? 'active' : '' }}'>
                     <i class='fas fa-tasks'></i> My Tasks
                 </a>
 
-                <a href='{{ url('notifications') }}' 
+                <a href='{{ url('notifications') }}'
                 class='{{ request()->is('notifications', 'trash-notifications', 'create-notifications', 'show-notifications/*', 'edit-notifications/*', 'delete-notifications/*', 'notifications-search*') ? 'active' : '' }}'>
                 <i class='fas fa-bell'></i> Notifications
                 </a>
 
-            @endif  
+            @endif
 
             @if (Auth::user()->role === 'employee')
 
@@ -243,24 +243,24 @@
                     <b>Task Management</b>
                 </div>
 
-                <a href='{{ url('my-tasks') }}' 
+                <a href='{{ url('my-tasks') }}'
                     class='{{ request()->is('my-tasks', 'show-tasks/*', 'trash-my-tasks', 'create-my-tasks', 'show-my-tasks/*', 'edit-my-tasks/*', 'delete-my-tasks/*', 'my-tasks-search*') ? 'active' : '' }}'>
                     <i class='fas fa-tasks'></i> My Tasks
                 </a>
 
-                <a href='{{ url('notifications') }}' 
+                <a href='{{ url('notifications') }}'
                 class='{{ request()->is('notifications', 'trash-notifications', 'create-notifications', 'show-notifications/*', 'edit-notifications/*', 'delete-notifications/*', 'notifications-search*') ? 'active' : '' }}'>
                 <i class='fas fa-bell'></i> Notifications
                 </a>
 
-            @endif  
+            @endif
 
             <hr>
 
             <a href='{{ url('release-notes.html') }}'>
                 <i class='fas fa-book'></i> Release Notes
             </a>
-            
+
             <a href='{{ url('user/profile') }}'><i class='fas fa-user'></i> {{ Auth::user()->name }}</a>
         </div>
 
@@ -401,7 +401,7 @@
        .dropdown-item {
          cursor: pointer;
        }
-   
+
        @media (max-width: 480px) {
         .chatbox-wrapper {
         max-width: 95vw;
@@ -421,15 +421,15 @@
     }
      `;
      document.head.appendChild(style);
-   
+
      const chatButton = document.createElement('button');
      chatButton.className = 'chat-toggle-btn';
      chatButton.innerHTML = '&#128172;';
      document.body.appendChild(chatButton);
-   
+
      const chatContainer = document.createElement('div');
      chatContainer.className = 'chatbox-wrapper';
-     
+
      const faqData = [
         {
             question: "How to add an item?",
@@ -450,7 +450,7 @@
     ];
 
     // Generate dropdown HTML from JSON
-    const dropdownHTML = faqData.map(item => 
+    const dropdownHTML = faqData.map(item =>
     `<li><a class="dropdown-item" href="#" data-question="${item.question}" data-response="${item.response}">${item.question}</a></li>`
     ).join('');
 
@@ -487,7 +487,7 @@
 
 
      document.body.appendChild(chatContainer);
-   
+
      chatButton.addEventListener('click', () => {
        chatContainer.style.display = chatContainer.style.display === 'flex' ? 'none' : 'flex';
        const msgBox = document.getElementById('chatboxMessages');
@@ -495,47 +495,47 @@
          msgBox.scrollTop = msgBox.scrollHeight;
        }, 100);
      });
-   
+
      const app = angular.module('chatApp', []);
-   
+
      app.config(['$interpolateProvider', function($interpolateProvider) {
        $interpolateProvider.startSymbol('[[');
        $interpolateProvider.endSymbol(']]');
      }]);
-   
+
      app.controller('ChatController', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
        $scope.messages = [];
        $scope.userInput = '';
        $scope.isTyping = false;
 
        $scope.beginConversation = false;
-   
+
        const scrollToBottom = () => {
          $timeout(() => {
            const container = document.getElementById('chatboxMessages');
            container.scrollTop = container.scrollHeight;
          }, 50);
        };
-   
+
        $scope.sendMessage = function() {
 
         $scope.beginConversation = true;
 
          const input = $scope.userInput.trim();
          if (!input) return;
-   
+
          $scope.messages.push({ text: input, sender: 'user' });
          $scope.userInput = '';
          $scope.isTyping = true;
          scrollToBottom();
-   
+
          $http.get('https://text.pollinations.ai/' + encodeURIComponent(input), {
            headers: { 'Content-Type': 'text/plain' }
          }).then(function(response) {
            const fullText = response.data;
            let typedText = '';
            let i = 0;
-   
+
            function typeChar() {
              if (i < fullText.length) {
                typedText += fullText.charAt(i);
@@ -552,7 +552,7 @@
                $scope.isTyping = false;
              }
            }
-   
+
            typeChar();
          }).catch(function(error) {
            $scope.isTyping = false;
@@ -561,13 +561,13 @@
          });
        };
      }]);
-   
+
      angular.bootstrap(chatContainer, ['chatApp']);
-   
+
      // Dropdown search & select logic
      const dropdownSearch = document.getElementById('dropdownSearch');
      const dropdownItems = document.querySelectorAll('#customDropdown .dropdown-item');
-   
+
      dropdownSearch.addEventListener('input', function () {
         document.getElementById('customDropdown').style.display = 'block';
        const filter = this.value.toLowerCase();
@@ -576,7 +576,7 @@
          item.style.display = text.includes(filter) ? 'block' : 'none';
        });
      });
-   
+
      dropdownItems.forEach(item => {
    item.addEventListener('click', function (e) {
 
@@ -590,10 +590,10 @@
 
     e.preventDefault();
     document.getElementById('customDropdown').style.display = 'none';
-   
+
     const question = this.getAttribute('data-question');
     const response = this.getAttribute('data-response');
-   
+
     const scopeEl = document.querySelector('[ng-controller="ChatController"]');
     if (scopeEl) {
       const scope = angular.element(scopeEl).scope();
@@ -602,10 +602,10 @@
         scope.messages.push({ text: question, sender: 'user' });
         scope.isTyping = true;
       });
-   
+
       let typedText = '';
         let i = 0;
-   
+
         function typeChar() {
         if (i < response.length) {
             typedText += response.charAt(i);
@@ -617,7 +617,7 @@
                 }
                 messages[messages.length - 1].text = typedText;
                 scope.isTyping = true;
-   
+
                 const container = document.getElementById('chatboxMessages');
                 if (container) container.scrollTop = container.scrollHeight;
                 i++;
@@ -633,15 +633,15 @@
             }, 50);
         }
         }
-   
+
         typeChar();
-   
+
     }
-   
+
     dropdownSearch.value = '';
    });
    });
-   
+
    })();
 </script>
     </body>
