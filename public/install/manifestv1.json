@@ -1,7 +1,7 @@
 {
-    "short_name": "Application",
-    "name": "Progressive Web Application",
-    "description": "Lorem ipsum app manifest",
+    "short_name": "Librify",
+    "name": "Librify Systems Application",
+    "description": "Efficient inventory management system for Librify IT Solutions, designed to streamline operations, track network equipment, and optimize resource allocation to ensure seamless service delivery and reduce operational costs.",
     "icons": [
         {
             "src": "./logo/logo-96x96.png",

@@ -95,10 +95,16 @@
             </div>
             <h1>Want a Better Experience?</h1>
             <p>Install the app for a faster, more personalized experience. Or you can continue using the browser.</p>
-            <div class="buttons">
+            <div class="buttons" id="install-buttons">
                 <button class="install-btn" id="btn">Install App</button>
-                <a href="dashboard">
+                <a href="/dashboard">
                     <button class="continue-btn">Continue in Browser</button>
+                </a>
+            </div>
+            <div class="already-installed" id="already-installed" style="display: none; text-align: center;">
+                <p>✅ You've already installed the app. Enjoy the full experience!</p>
+                <a href="/dashboard">
+                    <button class="continue-btn">Go to Dashboard</button>
                 </a>
             </div>
         </div>

@@ -261,6 +261,10 @@
                 <i class='fas fa-book'></i> Release Notes
             </a>
 
+            <a href="/install" class="">
+                <i class="fas fa-th-large"></i> Get the App
+            </a>
+
             <a href='{{ url('user/profile') }}'><i class='fas fa-user'></i> {{ Auth::user()->name }}</a>
         </div>
 
