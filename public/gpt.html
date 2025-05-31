@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="chatApp">
+<head>
+  <meta charset="UTF-8">
+  <title>ChatGPT Typing Clone</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    .chat-box { background: #fff; padding: 15px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .message { margin: 10px 0; }
+    .user { color: #2c3e50; font-weight: bold; }
+    .assistant { color: #16a085; }
+    textarea { width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    button { margin-top: 10px; padding: 10px 20px; border: none; background: #3498db; color: white; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #2980b9; }
+    .conversation-switch { margin-top: 20px; }
+  </style>
+</head>
+<body ng-controller="ChatController">
+  <div class="chat-box">
+    <div ng-repeat="msg in currentConversation.messages" class="message">
+      <div class="user" ng-if="msg.role === 'user'">You: {{ msg.content }}</div>
+      <div class="assistant" ng-if="msg.role === 'assistant'">GPT: {{ msg.display }}</div>
+    </div>
+
+    <textarea ng-model="userInput" placeholder="Type a message..."></textarea>
+    <button ng-click="sendMessage()">Send</button>
+    <button class="conversation-switch" ng-click="newConversation()">New Conversation</button>
+  </div>
+
+  <script>
+    angular.module('chatApp', []).controller('ChatController', function($scope, $http, $timeout) {
+  const STORAGE_KEY = 'chat_conversations';
+  $scope.userInput = '';
+  $scope.conversations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  $scope.currentIndex = $scope.conversations.length - 1;
+
+  $scope.newConversation = function() {
+    $scope.currentConversation = { messages: [] };
+    $scope.conversations.push($scope.currentConversation);
+    $scope.currentIndex = $scope.conversations.length - 1;
+    saveToStorage();
+  };
+
+  $scope.sendMessage = function() {
+    if (!$scope.userInput.trim()) return;
+
+    const userMessage = { role: 'user', content: $scope.userInput };
+    $scope.currentConversation.messages.push(userMessage);
+    const assistantMessage = { role: 'assistant', content: '', display: '' };
+    $scope.currentConversation.messages.push(assistantMessage);
+    saveToStorage();
+
+    const payload = {
+      messages: [{ role: 'user', content: $scope.userInput }],
+      max_tokens: 100
+    };
+
+    $http.post('http://localhost:1234/v1/chat/completions', payload).then(response => {
+      const content = response.data.choices[0].message.content;
+      assistantMessage.content = content;
+      typeEffect(assistantMessage, content, 0);
+    });
+
+    $scope.userInput = '';
+  };
+
+  function typeEffect(messageObj, text, index) {
+    if (index < text.length) {
+      messageObj.display = text.slice(0, index + 1);
+      saveToStorage();
+      $timeout(() => typeEffect(messageObj, text, index + 1), 20);
+    }
+  }
+
+  function saveToStorage() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify($scope.conversations));
+  }
+
+  // ✅ Move this AFTER function declarations
+  if ($scope.currentIndex === -1) $scope.newConversation();
+  else $scope.currentConversation = $scope.conversations[$scope.currentIndex];
+});
+
+  </script>
+</body>
+</html>

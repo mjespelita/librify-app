@@ -1,0 +1,18 @@
+[
+    {
+        "name": "Test Site",
+        "siteId": "67fcc083ba53bc7c634e8f32",
+        "customerId": null,
+        "customerName": null,
+        "region": "Philippines",
+        "timezone": "Asia\/Kuala_Lumpur",
+        "scenario": "Office",
+        "wan": null,
+        "connectedApNum": null,
+        "disconnectedApNum": null,
+        "isolatedApNum": null,
+        "connectedSwitchNum": null,
+        "disconnectedSwitchNum": null,
+        "type": 0
+    }
+]

@@ -1,0 +1,22 @@
+{
+    "short_name": "Application",
+    "name": "Progressive Web Application",
+    "description": "Lorem ipsum app manifest",
+    "icons": [
+        {
+            "src": "./logo/logo-96x96.png",
+            "type": "image/png",
+            "sizes": "95x95"
+        },
+        {
+            "src": "./logo/logo-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        }
+    ],
+    "theme_color": "#fff",
+    "start_url": "http://127.0.0.1:8000",
+    "display": "standalone",
+    "background_color": "#fff",
+    "orientation": "portrait"
+}

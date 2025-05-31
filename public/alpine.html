@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List with Alpine.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .todo-app {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .todo-app h2 {
+            margin: 0;
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .todo-input input {
+            width: 80%;
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .todo-input button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .todo-input button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        li.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .todo-actions button {
+            padding: 5px 10px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .todo-actions button:hover {
+            background-color: #e03e3e;
+        }
+    </style>
+</head>
+<body>
+    <div x-data="todoApp()" class="todo-app">
+        <h2>Todo List</h2>
+
+        <div class="todo-input">
+            <input type="text" x-model="newTodo" @keyup.enter="addTodo" placeholder="Add a task...">
+            <button @click="addTodo">Add</button>
+        </div>
+
+        <ul>
+            <li x-for="(todo, index) in todos" :key="index" :class="{ completed: todo.done }">
+                <span @click="toggleDone(index)" style="cursor: pointer;">
+                    <span x-text="todo.text"></span>
+                </span>
+                <div class="todo-actions">
+                    <!-- Use an inline arrow function to pass the index properly -->
+                    <button @click="removeTodo(index)">Delete</button>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        function todoApp() {
+            return {
+                newTodo: '',
+                todos: [
+                    { text: 'Learn Alpine.js', done: false },
+                    { text: 'Build a Todo App', done: false }
+                ],
+                addTodo() {
+                    const text = this.newTodo.trim();
+                    if (text) {
+                        this.todos.push({ text, done: false });
+                        this.newTodo = '';
+                    }
+                },
+                removeTodo(index) {
+                    this.todos.splice(index, 1);
+                },
+                toggleDone(index) {
+                    this.todos[index].done = !this.todos[index].done;
+                }
+            };
+        }
+    </script>
+</body>
+</html>

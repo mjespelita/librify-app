@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librify IT. Solutions - Documentation</title>
+    <!-- Bootstrap CSS -->
+    <link href="./assets/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/custom/style.css">
+</head>
+
+<body>
+
+    <!-- Sidebar for Desktop View -->
+    <!-- <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="./assets/logo.png" alt="" width="100%">
+        </div>
+        <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="#"><i class="fas fa-cogs"></i> Supplies</a>
+        <a href="#"><i class="fas fa-clipboard-list"></i> Inventory Status</a>
+        <a href="#"><i class="fas fa-shopping-cart"></i> Requests</a>
+        <a href="#"><i class="fas fa-cogs"></i> Settings</a>
+        <a href=""><i class="fas fa-user"></i> Mark Jason Espelita</a>
+    </div> -->
+
+    <!-- Sidebar for Desktop View -->
+    <div class="sidebar" id="mobileSidebar" style="z-index: 2;">
+        <div class="logo">
+            <img src="./assets/logo.png" alt="" width="100%">
+        </div>
+        <a href="#initialization"><i class="fas fa-tachometer-alt"></i> Initialization</a>
+        <a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <b>Inventory Management System</b>
+        <a href="#items"><i class="fas fa-cogs"></i> Items</a>
+        <a href="#how-to-add-an-item"><i class="fas fa-question"></i> How to add an item?</a>
+    </div>
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" onclick="toggleSidebar()">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="content">
+        <div class="container">
+            <h1>Welcome to the Documentation</h1>
+            <div id="initialization">
+                <h5>How to enter the application.</h5>
+                <p>
+                    <b>1.</b> Open your preferred web browser and navigate to the following URL <a href="https://app.librifyits.com">https://app.librifyits.com</a>. <br> You may also access the page directly by clicking the provided link.
+                </p>
+            </div>
+    
+            <hr>
+    
+            <div id="dashboard">
+                <h5>Dashboard</h5>
+                <p>
+                    Upon successful login, users are directed to the Dashboard, which provides a graphical summary of key item statuses within the system. The dashboard currently includes the following graphs:
+                </p>
+                <ul>
+                    <li>
+                        <b>In-Use Items</b> graph.
+                        This bar graph displays the total count of items currently in use. It provides a clear visual representation of active inventory usage.
+                    </li> <br>
+                    <li>
+                        <b>Damaged Items</b> graph.
+                        This bar graph shows the total count of items that have been reported as damaged. It helps track asset condition and identify trends in equipment failure or misuse.
+                    </li> <br>
+                    <li>
+                        <b>Items Overview</b> graph presents a comprehensive summary of item distribution across different statuses. This graph includes both percentage and actual count values to provide a clear understanding of inventory allocation. It covers the following categories:
+                        <ul>
+                            <li><b>On-Site Items</b>: Represents the percentage and count of items currently deployed or in use at various locations.</li> <br>
+                            <li><b>Damaged Items</b>: Indicates the percentage and count of items that have been reported as damaged.</li> <br>
+                            <li><b>Warehouse Items</b>: Shows the percentage and count of items that are stored and available in the warehouse.</li> <br>
+                        </ul>
+                    </li> <br>
+                    <li>
+                        In addition to the graphical insights, the dashboard also includes six summary boxes that provide quick, high-level metrics essential for operational awareness. Each box displays a key data point with a brief label and corresponding count.
+                        <ul>
+                            <li><b>Total Sites</b>:
+                                Displays the total number of active deployment locations or project sites currently being managed within the system. This metric helps gauge the operational reach and scope of the organization.</li> <br>
+                            <li><b>Total Technicians</b>:
+                                Indicates the number of technicians registered in the system. This provides a quick overview of available human resources responsible for installation, maintenance, and support tasks.</li> <br>
+                            <li><b>Item Types</b>:
+                                Shows the total number of distinct item types currently being tracked (e.g., routers, modems, switches, etc.). This metric helps in understanding the diversity of assets in use across all operations.</li> <br>
+                            <li><b>Total Warehouse Items</b>:
+                                Represents the total number of items stored and available in the warehouse. These items are in inventory but not yet deployed.</li> <br>
+                            <li><b>Total On-Site Items</b>:
+                                Reflects the total number of items currently deployed or installed at various sites. This helps track how much of the inventory is actively in use.</li> <br>
+                            <li><b>Total Damaged Items</b>:
+                                Displays the total number of items marked as damaged. This is critical for monitoring asset condition and planning for repairs or replacements.</li> <br>
+                        </ul>
+                    </li> <br>
+                    <li>
+                        At the bottom of the dashboard, users will find the Sites Overview section. This area provides a list of all registered sites, each displayed alongside its corresponding Google Maps location for easy geographic reference.
+                        <br><br>
+                        Each site entry includes a <b>“View Details”</b> button. When clicked, this button reveals comprehensive information about the selected site, including:
+                        <ul>
+                            <li><b>Onsite Items</b>:
+                                A detailed list of all items currently deployed at the site.</li> <br>
+                            <li><b>Assigned Technicians</b>:
+                                Information on the technicians responsible for operations or maintenance at the location.</li> <br>
+                            <li><b>Damaged Items</b>:
+                                A breakdown of any items at the site that have been reported as damaged.</li> <br>
+                        </ul>
+                    </li> <br>
+                </ul>
+                <div class="images">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <a href="./assets/docs_images/dashboard.PNG"><img src="./assets/docs_images/dashboard.PNG" style="width: 100%; border-radius: 10px; border: orange 3px solid;" alt=""></a>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <a href="./assets/docs_images/dashboard2.PNG"><img src="./assets/docs_images/dashboard2.PNG" style="width: 100%; border-radius: 10px; border: orange 3px solid;" alt=""></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div id="items">
+                <h5>Items</h5>
+                <p>
+                    The Items page provides a detailed inventory of all assets currently managed within the system. Each item entry includes comprehensive information to help users track and manage equipment efficiently. <br><br>
+                    The following fields are displayed for each item:
+                </p>
+                <li>
+                    <b>Item ID</b>: A system-generated unique identifier assigned automatically to each item for accurate tracking.
+                </li> <br>
+                <li>
+                    <b>Name</b>: The name of the item (e.g., Cisco Router, TP-LINK Switch, Modem).
+                </li> <br>
+                <li>
+                    <b>Model</b>: The specific model number or designation provided by the manufacturer.
+                </li> <br>
+                <li>
+                    <b>Brand</b>: The brand or manufacturer name associated with the item.
+                </li> <br>
+                <li>
+                    <b>Type</b>: The category or classification of the item (e.g., Router, Switch, etc.).
+                </li> <br>
+                <li>
+                    <b>Description</b>: A brief description of the item, outlining its purpose or features.
+                </li> <br>
+                <li>
+                    <b>Total Overall Quantity</b>: The total number of units recorded for the item across all statuses.
+                </li> <br>
+                <li>
+                    <b>In Warehouse Quantity</b>: The number of units currently stored in the warehouse and available for future deployment.
+                </li> <br>
+                <li>
+                    <b>On-Site Quantity</b>: The number of units actively deployed or installed at various sites.
+                </li> <br>
+                <li>
+                    <b>Damaged Quantity</b>: The number of units that have been marked as damaged and are no longer in usable condition.
+                </li> <br>
+                <li>
+                    <b>Unit</b>: The unit of measurement for the item (e.g., piece, meters, etc).
+                </li> <br>
+                <p>
+                    This page enables users to monitor inventory levels, manage stock distribution, and make informed decisions regarding asset utilization and replenishment.
+                </p>
+                <div class="images">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <a href="./assets/docs_images/items.PNG"><img src="./assets/docs_images/items.PNG" style="width: 100%; border-radius: 10px; border: orange 3px solid;" alt=""></a>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <a href="./assets/docs_images/items2.PNG"><img src="./assets/docs_images/items2.PNG" style="width: 100%; border-radius: 10px; border: orange 3px solid;" alt=""></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div id="how-to-add-an-item">
+                <h5>How to add an item</h5>
+                <p>
+                    The Items page provides a detailed inventory of all assets currently managed within the system. Each item entry includes comprehensive information to help users track and manage equipment efficiently. <br><br>
+                    The following fields are displayed for each item:
+                </p>
+                <div class="images">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <a href="./assets/docs_images/how-to-add-an-item.PNG"><img src="./assets/docs_images/how-to-add-an-item.PNG" style="width: 100%; border-radius: 10px; border: orange 3px solid;" alt=""></a>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <a href="./assets/docs_images/how-to-add-an-item-2.PNG"><img src="./assets/docs_images/how-to-add-an-item-2.PNG" style="width: 100%; border-radius: 10px; border: orange 3px solid;" alt=""></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="./assets/bootstrap/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        function toggleSidebar() {
+            document.getElementById('mobileSidebar').classList.toggle('active');
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+    </script>
+
+</body>
+
+</html>

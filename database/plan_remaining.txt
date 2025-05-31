@@ -1,0 +1,83 @@
+nawakay
+tab para sa technician
+
+-
+remaining
+
+finishing
+ok - nawakay
+dashboard of technician
+login design
+welcome page
+
+Sites
+ok name
+ok phonenumber
+ok google maps cooordinate
+
+Updates
+
+ok - when click site, maimod kun mga nanu na items
+
+ok - items details, mag add sin serial number - optional
+
+ok maka add site ang technician
+
+ok maka add damages ang technician
+
+ok - google maps coordinates - iframe
+
+ok - what is the most requested items
+
+ok - stat of most installed items
+
+ok - search through serial numbers
+
+ok - description of damages
+
+ok - if admin mag add?
+
+ok dashboard graph fix
+
+--- page that has serial number
+
+/create-items
+edit-items/* - remove only
+
+/create-onsites
+edit-onsites/2 - remove and add
+
+/create-damages
+edit-damages/2 - remove and add
+
+ok - serial number condition
+
+March 27, 2025 ----------------------------------
+
+ok - lead assignee
+ok - comment section add image
+ok - priority - optional
+ok - pause time of other task of the assignee if he is assigned to high priority task
+ok - schedule repeated
+
+auto - start
+Grading of task quality
+
+ok - backup
+ok - task history of graph
+ok - Admin permissions
+ok - audience configuration
+ok - Task name to Subject - Term
+ok - single page with realtime tasks
+ok - printable PDF with details
+-- fix bug on update onsite
+-- fix other bug
+-- front end improvement
+
+ok - internal notification
+ok - comment section can send any forms of files.
+ok - employee profiling
+
+ok - fix the my-task page of employee dashboard face
+ok - edit the edit task - priority update
+ok - fix calendar - unreliable date

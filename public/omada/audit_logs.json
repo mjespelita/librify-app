@@ -1,0 +1,28 @@
+[
+    {
+        "time": 1744617638780,
+        "operator": "dict.admnsupp1@gmail.com",
+        "resource": "WEB",
+        "ip": "103.250.62.35",
+        "auditType": "Controller Settings",
+        "level": "Information",
+        "result": "Success",
+        "content": "Open API application Sample API Key added successfully in platform integration.",
+        "label": "",
+        "oldValue": "",
+        "newValue": ""
+    },
+    {
+        "time": 1744617603435,
+        "operator": "dict.admnsupp1@gmail.com",
+        "resource": "WEB",
+        "ip": "103.250.62.35",
+        "auditType": "Site Management",
+        "level": "Information",
+        "result": "Success",
+        "content": "Site Test Site added successfully.",
+        "label": "",
+        "oldValue": "",
+        "newValue": ""
+    }
+]
