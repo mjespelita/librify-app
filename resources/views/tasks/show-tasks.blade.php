@@ -462,11 +462,24 @@
             // }
 
             function playNotificationSound() {
-                let audio = new Audio('../assets/ringtone.m4a');
+                // Use a static variable to persist the audio and unlock status
+                if (!playNotificationSound.audio) {
+                    playNotificationSound.audio = new Audio('../assets/ringtone.m4a');
+                    playNotificationSound.unlocked = false;
 
-                document.addEventListener("click", () => {
-                    audio.play();
-                }, { once: true });
+                    // Unlock audio on first user interaction
+                    document.addEventListener("click", () => {
+                        playNotificationSound.audio.play().then(() => {
+                            playNotificationSound.unlocked = true;
+                        }).catch(() => {});
+                    }, { once: true });
+                }
+
+                // Try playing immediately if already unlocked
+                if (playNotificationSound.unlocked) {
+                    playNotificationSound.audio.currentTime = 0; // restart sound
+                    playNotificationSound.audio.play().catch(() => {});
+                }
             }
 
             function fetchComments(taskId) {
@@ -561,9 +574,11 @@
                         });
 
                         // Play sound if new messages are detected
-                        // if (isNewMessage) {
-                        //     playNotificationSound();
-                        // }
+                        if (isNewMessage) {
+                            playNotificationSound();
+
+                            console.log('new message');
+                        }
                     },
                     onError: (error) => {
                         console.error("Error fetching data:", error);
