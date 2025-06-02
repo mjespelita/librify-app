@@ -183,7 +183,7 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard')->middleware(AuthMiddleware::class);
-    
+
     Route::get('/admin-dashboard', function () {
         if (Auth::user()->role != 'office_admin') {
             return view('admin-dashboard');
@@ -221,13 +221,13 @@ Route::middleware([
     Route::get('/my-tasks-filter', function (Request $request) {
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         $query = Taskassignments::query();
-    
+
         // Convert input dates to Carbon instances (ensuring full day range)
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Filter tasks by date range
         if ($fromDate && $toDate) {
             $tasks = $query->where('users_id', Auth::user()->id)
@@ -238,7 +238,7 @@ Route::middleware([
                            ->groupBy('tasks_id')
                            ->paginate(10);
         }
-    
+
         // ✅ Query all pending tasks within the selected range
         $unfinished_tasks = Taskassignments::where('users_id', Auth::user()->id)
             ->whereHas('tasks', function ($query) {
@@ -255,7 +255,7 @@ Route::middleware([
                 })
                 ->orderBy('id', 'desc')
                 ->paginate(20);
-    
+
         return view('technicians.my-tasks', compact('tasks', 'unfinished_tasks', 'public_tasks', 'from', 'to'));
     });
 
@@ -263,14 +263,14 @@ Route::middleware([
         $from = $request->input('from');
         $to = $request->input('to');
         $userId = $request->input('user') ?? Auth::id(); // Use requested user or authenticated user
-    
+
         // Convert input dates to Carbon instances
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Fetch user details
         $user = User::findOrFail($userId);
-    
+
         // Query task assignments within the date range (or all if no range)
         $taskAssignmentsQuery = Taskassignments::where('users_id', $userId);
         if ($fromDate && $toDate) {
@@ -278,23 +278,23 @@ Route::middleware([
         } else {
             $taskAssignmentsQuery->whereDate('created_at', Carbon::today()); // Default to today
         }
-    
+
         $taskAssignments = $taskAssignmentsQuery->orderBy('id', 'desc')->paginate(20);
-    
+
         // Query unfinished task assignments (pending status)
         $unfinished_taskAssignmentsQuery = Taskassignments::where('users_id', $userId)
             ->whereHas('tasks', function ($query) {
-                $query->where('status', 'pending'); 
+                $query->where('status', 'pending');
             });
-    
+
         if ($fromDate && $toDate) {
             $unfinished_taskAssignmentsQuery->whereBetween('created_at', [$fromDate, $toDate]);
         } else {
             $unfinished_taskAssignmentsQuery->whereDate('created_at', Carbon::today());
         }
-    
+
         $unfinished_taskAssignments = $unfinished_taskAssignmentsQuery->orderBy('id', 'desc')->paginate(20);
-    
+
         return view('technicians.show-technicians', [
             'item' => $user,
             'taskAssignments' => $taskAssignments,
@@ -311,7 +311,7 @@ Route::middleware([
 
         return view('backups', compact('files'));
     });
-    
+
     Route::get('/backup-process', function () {
         // Call the backup artisan command
         Artisan::call('backup');
@@ -337,16 +337,16 @@ Route::middleware([
         ]);
     });
 
-    Route::get('/export-employee-performance-details/{userIds}', function ($userIds) {
-        $user = User::where('id', $userIds)->first();
-        return PDFer::exportEmployeePerformanceDetails([
-            [
-                'ID' => 1,
-                'Name' => 'Mark Jason',
-                'Email' => 'mark@gmail.com',
-            ]
-        ]);
-    });
+    // Route::get('/export-employee-performance-details/{userIds}', function ($userIds) {
+    //     $user = User::where('id', $userIds)->first();
+    //     return PDFer::exportEmployeePerformanceDetails([
+    //         [
+    //             'ID' => 1,
+    //             'Name' => 'Mark Jason',
+    //             'Email' => 'mark@gmail.com',
+    //         ]
+    //     ]);
+    // });
 
     // use Illuminate\Support\Carbon;
 
@@ -354,14 +354,14 @@ Route::middleware([
         $userIds = $request->input('user_ids', []);
         $fromDate = $request->input('from_date');
         $toDate = $request->input('to_date');
-    
+
         if (empty($userIds)) {
             return back()->with('error', 'No users selected.');
         }
-    
+
         $users = User::whereIn('id', $userIds)->get();
         $excelData = [];
-    
+
         // Excel Header
         $header = [
             'Name',
@@ -377,22 +377,22 @@ Route::middleware([
             'Status',
         ];
         $excelData[] = $header;
-    
+
         foreach ($users as $user) {
             $assignments = Taskassignments::where('users_id', $user->id)->get();
             $taskRows = [];
-    
+
             foreach ($assignments as $assignment) {
                 $task = Tasks::find($assignment->tasks_id);
-    
+
                 if ($task && $task->created_at) {
                     $taskDate = Carbon::parse($task->created_at);
                     $withinRange = true;
-    
+
                     if ($fromDate && $toDate) {
                         $withinRange = $taskDate->between($fromDate, $toDate);
                     }
-    
+
                     if ($withinRange) {
                         $taskRows[] = [
                             'created_at' => $task->created_at,
@@ -413,10 +413,10 @@ Route::middleware([
                     }
                 }
             }
-    
+
             // Sort task rows by creation date (descending)
             $sortedTasks = collect($taskRows)->sortByDesc('created_at');
-    
+
             if ($sortedTasks->isEmpty()) {
                 $excelData[] = [
                     $user->name ?? '',
@@ -430,7 +430,7 @@ Route::middleware([
                 }
             }
         }
-    
+
         return Excel::_downloadEmployeeTasksInExcel(
             Dater::humanReadableDate($fromDate),
             Dater::humanReadableDate($toDate),
@@ -442,11 +442,11 @@ Route::middleware([
     Route::post('/export-employee-tasks-details/{id}', function ($id, Request $request) {
         $fromDate = $request->input('from_date');
         $toDate = $request->input('to_date');
-    
+
         $user = User::findOrFail($id);
-    
+
         $excelData = [];
-    
+
         $header = [
             'Name',
             'Email',
@@ -461,21 +461,21 @@ Route::middleware([
             'Status',
         ];
         $excelData[] = $header;
-    
+
         $assignments = Taskassignments::where('users_id', $user->id)->get();
         $userHasData = false;
-    
+
         foreach ($assignments as $assignment) {
             $task = Tasks::find($assignment->tasks_id);
-    
+
             if ($task) {
                 $taskDate = $task->created_at ? Carbon::parse($task->created_at) : null;
                 $withinRange = true;
-    
+
                 if ($fromDate && $toDate && $taskDate) {
                     $withinRange = $taskDate->between($fromDate, $toDate);
                 }
-    
+
                 if ($withinRange) {
                     $row = [
                         $user->name ?? '',
@@ -490,13 +490,13 @@ Route::middleware([
                         $task->deadline ? Carbon::parse($task->deadline)->diffForHumans() : '',
                         $task->status ?? '',
                     ];
-    
+
                     $excelData[] = $row;
                     $userHasData = true;
                 }
             }
         }
-    
+
         // If user has no task within range, add a blank row with user info
         if (!$userHasData) {
             $excelData[] = [
@@ -506,7 +506,7 @@ Route::middleware([
                 '', '', '', '', '', '', '', '',
             ];
         }
-    
+
         return Excel::_downloadEmployeeTasksInExcel(
             Dater::humanReadableDate($fromDate),
             Dater::humanReadableDate($toDate),
@@ -514,7 +514,7 @@ Route::middleware([
             array_slice($excelData, 1) // Remove header to avoid duplication
         );
     });
-    
+
 
 
     // API
@@ -522,12 +522,12 @@ Route::middleware([
     Route::get('/get-employee-task-count/{users_id}', function ($users_id) {
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
-    
+
         $taskCounts = [];
-    
+
         for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
             $dateString = $date->toDateString(); // Format: YYYY-MM-DD
-    
+
             // Count pending task assignments for the user on this date
             $pendingTasks = Taskassignments::where('users_id', $users_id)
                 ->whereHas('tasks', function ($query) {
@@ -535,7 +535,7 @@ Route::middleware([
                 })
                 ->whereDate('created_at', $dateString)
                 ->count();
-    
+
             // Count completed task assignments for the user on this date
             $completedTasks = Taskassignments::where('users_id', $users_id)
                 ->whereHas('tasks', function ($query) {
@@ -543,14 +543,14 @@ Route::middleware([
                 })
                 ->whereDate('created_at', $dateString)
                 ->count();
-    
+
             $taskCounts[] = [
                 'date' => $dateString,
                 'pending' => $pendingTasks ?: 0, // Ensure zero if no tasks
                 'completed' => $completedTasks ?: 0,
             ];
         }
-    
+
         return response()->json($taskCounts);
     });
 
@@ -561,12 +561,12 @@ Route::middleware([
             // Get start and end of the provided month and year
             $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
             $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth();
-    
+
             $taskCounts = [];
-    
+
             for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
                 $dateString = $date->toDateString(); // Format: YYYY-MM-DD
-    
+
                 // Count pending task assignments for the user on this date
                 $pendingTasks = Taskassignments::where('users_id', $users_id)
                     ->whereHas('tasks', function ($query) {
@@ -574,7 +574,7 @@ Route::middleware([
                     })
                     ->whereDate('created_at', $dateString)
                     ->count();
-    
+
                 // Count completed task assignments for the user on this date
                 $completedTasks = Taskassignments::where('users_id', $users_id)
                     ->whereHas('tasks', function ($query) {
@@ -582,21 +582,21 @@ Route::middleware([
                     })
                     ->whereDate('created_at', $dateString)
                     ->count();
-    
+
                 $taskCounts[] = [
                     'date' => $dateString,
                     'pending' => $pendingTasks ?: 0,
                     'completed' => $completedTasks ?: 0,
                 ];
             }
-    
+
             return response()->json($taskCounts);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Invalid input or server error', 'message' => $e->getMessage()], 400);
         }
     });
-    
-    
+
+
     Route::get('/get-item-data-for-graph', function () {
         return response()->json([
             'inWarehousesCount' => Items::sum('quantity') - Onsites::sum('quantity') - Damages::sum('quantity'),
@@ -652,45 +652,45 @@ Route::middleware([
     Route::get('/get-item-serial-numbers', function () {
         // Fetch all items from the Items model
         $allItems = Items::all();
-    
+
         // Fetch the serial numbers from onsites and damages tables
         $onsites = Onsites::pluck('serial_numbers')->toArray();
         $damages = Damages::pluck('serial_numbers')->toArray();
-    
+
         // Initialize an array to hold all serial numbers from onsites and damages
         $excludedSerialNumbers = [];
-    
+
         // Loop through each record in onsites and damages to extract the serial numbers
         foreach ($onsites as $onsite) {
             // Split the serial numbers string by commas and clean up the whitespace
             $excludedSerialNumbers = array_merge($excludedSerialNumbers, array_map('trim', explode(',', $onsite)));
         }
-    
+
         foreach ($damages as $damage) {
             // Split the serial numbers string by commas and clean up the whitespace
             $excludedSerialNumbers = array_merge($excludedSerialNumbers, array_map('trim', explode(',', $damage)));
         }
-    
+
         // Remove duplicate serial numbers (optional)
         $excludedSerialNumbers = array_unique($excludedSerialNumbers);
-    
+
         // Initialize an array to store serial numbers from allItems that are not in excludedSerialNumbers
         $validSerialNumbers = [];
-    
+
         // Loop through each item in allItems and check if its serial numbers are not in the excluded list
         foreach ($allItems as $item) {
             // Split the serial numbers string by commas and clean up the whitespace
             $itemSerialNumbers = explode(',', $item->serial_numbers);
-    
+
             // Filter the serial numbers to include only those not in the excludedSerialNumbers array
             $validSerialNumbers = array_merge($validSerialNumbers, array_filter($itemSerialNumbers, function ($serialNumber) use ($excludedSerialNumbers) {
                 return !in_array(trim($serialNumber), $excludedSerialNumbers);
             }));
         }
-    
+
         // Remove duplicate serial numbers
         $validSerialNumbers = array_unique($validSerialNumbers);
-    
+
         // Return the serial numbers as an array (not an object)
         return response()->json([
             'serial_numbers' => array_values($validSerialNumbers), // Ensure it's an indexed array
@@ -699,7 +699,7 @@ Route::middleware([
 
     Route::get('/comments/{taskId}', function ($taskId, Request $request) {
         $authId = Auth::user()->id; // Get authenticated user ID
-    
+
         $comments = Comments::where('tasks_id', $taskId)
             ->with(['users', 'files'])
             ->latest()
@@ -720,7 +720,7 @@ Route::middleware([
                     'files'      => $comment->files->map(fn ($file) => ['file' => $file->file]),
                 ];
             });
-    
+
         return response()->json($comments);
     });
 
@@ -740,7 +740,7 @@ Route::middleware([
         ])->get('https://omada.librifyits.com/api/customers');
 
         $omadaCustomers = json_decode(json_encode($response->json()));
-    
+
         return view('omada.omada-customers', [
             'omadaCustomers' => $omadaCustomers
         ]);
@@ -754,7 +754,7 @@ Route::middleware([
         // ])->get('https://omada.librifyits.com/api/sites');
 
         $omadaSites = JSON::jsonRead('omada/sites.json');
-    
+
         return view('omada.omada-sites', [
             'omadaSites' => $omadaSites
         ]);
@@ -763,14 +763,14 @@ Route::middleware([
     Route::get('/omada-sites-statistics/{siteId}', function ($siteId) {
         $sites = JSON::jsonRead('omada/sites.json');
         $targetSite = null;
-    
+
         foreach ($sites as $site) {
             if ($site['siteId'] === $siteId) {
                 $targetSite = (object) $site; // Cast to object here
                 break; // Optional: stop the loop once found
             }
         }
-    
+
         return view('omada.omada-sites-statistics', [
             'item' => $targetSite
         ]);
@@ -782,9 +782,9 @@ Route::middleware([
         ])->withOptions([
             'verify' => false,
         ])->get('https://omada.librifyits.com/api/audit-logs');
-    
+
         $omadaAuditLogs = json_decode(json_encode($response->json()));
-    
+
         return view('omada.omada-audit-logs', [
             'omadaAuditLogs' => $omadaAuditLogs
         ]);
@@ -818,10 +818,10 @@ Route::middleware([
     Route::get('/logs-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the logs based on the 'paginate' value
         $logs = Logs::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated logs
         return view('logs.logs', compact('logs'));
     });
@@ -831,18 +831,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for logs
         $query = Logs::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -853,7 +853,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all logs without filtering
             $logs = $query->paginate(10);
         }
-    
+
         // Return the view with logs and the selected date range
         return view('logs.logs', compact('logs', 'from', 'to'));
     });
@@ -890,10 +890,10 @@ Route::middleware([
     Route::get('/types-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the types based on the 'paginate' value
         $types = Types::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated types
         return view('types.types', compact('types'));
     });
@@ -903,18 +903,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for types
         $query = Types::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -925,7 +925,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all types without filtering
             $types = $query->paginate(10);
         }
-    
+
         // Return the view with types and the selected date range
         return view('types.types', compact('types', 'from', 'to'));
     });
@@ -967,10 +967,10 @@ Route::middleware([
     Route::get('/items-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the items based on the 'paginate' value
         $items = Items::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated items
         return view('items.items', compact('items'));
     });
@@ -980,18 +980,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for items
         $query = Items::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1002,7 +1002,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all items without filtering
             $items = $query->paginate(10);
         }
-    
+
         // Return the view with items and the selected date range
         return view('items.items', compact('items', 'from', 'to'));
     });
@@ -1040,10 +1040,10 @@ Route::middleware([
     Route::get('/sites-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the sites based on the 'paginate' value
         $sites = Sites::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated sites
         return view('sites.sites', compact('sites'));
     });
@@ -1053,18 +1053,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for sites
         $query = Sites::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1075,7 +1075,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all sites without filtering
             $sites = $query->paginate(10);
         }
-    
+
         // Return the view with sites and the selected date range
         return view('sites.sites', compact('sites', 'from', 'to'));
     });
@@ -1113,10 +1113,10 @@ Route::middleware([
     Route::get('/technicians-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the technicians based on the 'paginate' value
         $technicians = Technicians::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated technicians
         return view('technicians.technicians', compact('technicians'));
     });
@@ -1126,18 +1126,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for technicians
         $query = Technicians::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1148,7 +1148,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all technicians without filtering
             $technicians = $query->paginate(10);
         }
-    
+
         // Return the view with technicians and the selected date range
         return view('technicians.technicians', compact('technicians', 'from', 'to'));
     });
@@ -1187,10 +1187,10 @@ Route::middleware([
     Route::get('/itemlogs-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the itemlogs based on the 'paginate' value
         $itemlogs = Itemlogs::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated itemlogs
         return view('itemlogs.itemlogs', compact('itemlogs'));
     });
@@ -1200,18 +1200,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for itemlogs
         $query = Itemlogs::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1222,7 +1222,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all itemlogs without filtering
             $itemlogs = $query->paginate(10);
         }
-    
+
         // Return the view with itemlogs and the selected date range
         return view('itemlogs.itemlogs', compact('itemlogs', 'from', 'to'));
     });
@@ -1261,10 +1261,10 @@ Route::middleware([
     Route::get('/onsites-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the onsites based on the 'paginate' value
         $onsites = Onsites::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated onsites
         return view('onsites.onsites', compact('onsites'));
     });
@@ -1274,18 +1274,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for onsites
         $query = Onsites::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1296,7 +1296,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all onsites without filtering
             $onsites = $query->paginate(10);
         }
-    
+
         // Return the view with onsites and the selected date range
         return view('onsites.onsites', compact('onsites', 'from', 'to'));
     });
@@ -1335,10 +1335,10 @@ Route::middleware([
     Route::get('/damages-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the damages based on the 'paginate' value
         $damages = Damages::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated damages
         return view('damages.damages', compact('damages'));
     });
@@ -1348,18 +1348,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for damages
         $query = Damages::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1370,7 +1370,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all damages without filtering
             $damages = $query->paginate(10);
         }
-    
+
         // Return the view with damages and the selected date range
         return view('damages.damages', compact('damages', 'from', 'to'));
     });
@@ -1407,10 +1407,10 @@ Route::middleware([
     Route::get('/deployedtechnicians-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the deployedtechnicians based on the 'paginate' value
         $deployedtechnicians = Deployedtechnicians::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated deployedtechnicians
         return view('deployedtechnicians.deployedtechnicians', compact('deployedtechnicians'));
     });
@@ -1420,18 +1420,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for deployedtechnicians
         $query = Deployedtechnicians::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1442,7 +1442,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all deployedtechnicians without filtering
             $deployedtechnicians = $query->paginate(10);
         }
-    
+
         // Return the view with deployedtechnicians and the selected date range
         return view('deployedtechnicians.deployedtechnicians', compact('deployedtechnicians', 'from', 'to'));
     });
@@ -1479,10 +1479,10 @@ Route::middleware([
     Route::get('/workspaces-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the workspaces based on the 'paginate' value
         $workspaces = Workspaces::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated workspaces
         return view('workspaces.workspaces', compact('workspaces'));
     });
@@ -1492,14 +1492,14 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for workspaces
         $query = Workspaces::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1510,11 +1510,11 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all workspaces without filtering
             $workspaces = $query->paginate(10);
         }
-    
+
         // Return the view with workspaces and the selected date range
         return view('workspaces.workspaces', compact('workspaces', 'from', 'to'));
     });
-    
+
 
     // end...
 
@@ -1548,10 +1548,10 @@ Route::middleware([
     Route::get('/projects-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the projects based on the 'paginate' value
         $projects = Projects::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated projects
         return view('projects.projects', compact('projects'));
     });
@@ -1561,14 +1561,14 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for projects
         $query = Projects::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1579,7 +1579,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all projects without filtering
             $projects = $query->paginate(10);
         }
-    
+
         // Return the view with projects and the selected date range
         return view('projects.projects', compact('projects', 'from', 'to'));
     });
@@ -1617,10 +1617,10 @@ Route::middleware([
     Route::get('/tasks-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the tasks based on the 'paginate' value
         $tasks = Tasks::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated tasks
         return view('tasks.tasks', compact('tasks'));
     });
@@ -1630,18 +1630,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for tasks
         $query = Tasks::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1652,7 +1652,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all tasks without filtering
             $tasks = $query->paginate(100);
         }
-    
+
         // Return the view with tasks and the selected date range
         return view('tasks.tasks', compact('tasks', 'from', 'to'));
     });
@@ -1689,10 +1689,10 @@ Route::middleware([
     Route::get('/workspaceusers-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the workspaceusers based on the 'paginate' value
         $workspaceusers = Workspaceusers::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated workspaceusers
         return view('workspaceusers.workspaceusers', compact('workspaceusers'));
     });
@@ -1702,18 +1702,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for workspaceusers
         $query = Workspaceusers::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1724,7 +1724,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all workspaceusers without filtering
             $workspaceusers = $query->paginate(10);
         }
-    
+
         // Return the view with workspaceusers and the selected date range
         return view('workspaceusers.workspaceusers', compact('workspaceusers', 'from', 'to'));
     });
@@ -1761,10 +1761,10 @@ Route::middleware([
     Route::get('/comments-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the comments based on the 'paginate' value
         $comments = Comments::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated comments
         return view('comments.comments', compact('comments'));
     });
@@ -1774,18 +1774,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for comments
         $query = comments::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1796,7 +1796,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all comments without filtering
             $comments = $query->paginate(10);
         }
-    
+
         // Return the view with comments and the selected date range
         return view('comments.comments', compact('comments', 'from', 'to'));
     });
@@ -1833,10 +1833,10 @@ Route::middleware([
     Route::get('/taskassignments-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the taskassignments based on the 'paginate' value
         $taskassignments = Taskassignments::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated taskassignments
         return view('taskassignments.taskassignments', compact('taskassignments'));
     });
@@ -1846,18 +1846,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for taskassignments
         $query = Taskassignments::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1868,7 +1868,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all taskassignments without filtering
             $taskassignments = $query->paginate(10);
         }
-    
+
         // Return the view with taskassignments and the selected date range
         return view('taskassignments.taskassignments', compact('taskassignments', 'from', 'to'));
     });
@@ -1911,10 +1911,10 @@ Route::middleware([
     Route::get('/tasktimelogs-paginate', function (Request $request) {
         // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
         $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
-    
+
         // Paginate the tasktimelogs based on the 'paginate' value
         $tasktimelogs = Tasktimelogs::paginate($paginate); // Paginate with the specified number of items per page
-    
+
         // Return the view with the paginated tasktimelogs
         return view('tasktimelogs.tasktimelogs', compact('tasktimelogs'));
     });
@@ -1924,18 +1924,18 @@ Route::middleware([
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Retrieve 'from' and 'to' dates from the URL
         $from = $request->input('from');
         $to = $request->input('to');
-    
+
         // Default query for tasktimelogs
         $query = Tasktimelogs::query();
-    
+
         // Convert dates to Carbon instances for better comparison
         $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
-    
+
         // Check if both 'from' and 'to' dates are provided
         if ($fromDate && $toDate) {
             // Ensure correct date filtering with full day range
@@ -1946,7 +1946,7 @@ Route::middleware([
             // If 'from' or 'to' are missing, show all tasktimelogs without filtering
             $tasktimelogs = $query->paginate(10);
         }
-    
+
         // Return the view with tasktimelogs and the selected date range
         return view('tasktimelogs.tasktimelogs', compact('tasktimelogs', 'from', 'to'));
     });

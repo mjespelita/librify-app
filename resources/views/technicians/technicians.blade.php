@@ -26,7 +26,7 @@
                             <input type="text" class="form-control search-someone" placeholder="Search Someone...">
 
                             <h5 class="py-2">Select Date Range</h5>
-                        
+
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="from_date" class="form-label">From Date</label>
@@ -41,28 +41,28 @@
                             <div class="searched">
                                 {{-- dynamically add here based on searh query --}}
                             </div>
-                        
+
                             <div class="scrollable-user-list" style="max-height: 600px; overflow-y: auto;">
                                 @php
                                     $roles = ['admin', 'warehouse_admin', 'office_admin', 'employee', 'technician'];
                                 @endphp
-                        
+
                                 @foreach ($roles as $role)
                                     @php
                                         $usersByRole = App\Models\User::where('role', $role)->get();
                                     @endphp
-                        
+
                                     @if ($usersByRole->count())
                                         <h5 class="mt-3 text-uppercase">{{ ucwords(str_replace('_', ' ', $role)) }}</h5>
                                         @foreach ($usersByRole as $user)
                                             <div class="mb-2 card p-2 d-flex flex-row align-items-center">
                                                 <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="form-check-input me-3">
-                        
-                                                <img src="{{ $user->profile_photo_path ? url('storage/' . $user->profile_photo_path) : 'https://via.placeholder.com/50' }}"
+
+                                                <img src="{{ $user->profile_photo_path ? url('storage/' . $user->profile_photo_path) : 'assets/profile_photo_placeholder.png' }}"
                                                      alt="{{ $user->name }}"
                                                      class="rounded-circle me-3"
                                                      width="50" height="50">
-                        
+
                                                 <div style="text-align: left">
                                                     <strong>{{ $user->name }}</strong><br>
                                                     <small>{{ $user->email }}</small>
@@ -71,20 +71,20 @@
                                         @endforeach
                                     @endif
                                 @endforeach
-                        
+
                                 @if (App\Models\User::count() === 0)
                                     <p>No users found.</p>
                                 @endif
                             </div>
-                        
+
                             <div class="text-end mt-3">
                                 <button type="submit" class="btn btn-primary">
                                     <i class='fas fa-file-excel'></i> Export
                                 </button>
                             </div>
                         </form>
-                        
-                        
+
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -118,7 +118,7 @@
                 <div class='col-lg-4 col-md-4 col-sm-12 mt-2'>
                     <form action='{{ url('/technicians-filter') }}' method='get'>
                         <div class='input-group'>
-                            <input type='date' class='form-control' id='from' name='from' required> 
+                            <input type='date' class='form-control' id='from' name='from' required>
                             <b class='pt-2'>- to -</b>
                             <input type='date' class='form-control' id='to' name='to' required>
                             <div class='input-group-append'>
@@ -194,11 +194,11 @@
     <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-12">
 
-    
+
             <div class='card'>
                 <div class='card-body'>
                     <h5>Technicians</h5>
-        
+
                     <div class='table-responsive'>
                         <table class='table table-striped'>
                             <thead>
@@ -212,7 +212,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-        
+
                             <tbody>
                                 @forelse($technicians as $item)
                                     <tr>
@@ -242,12 +242,12 @@
                     </div>
                 </div>
             </div>
-        
+
             {{ $technicians->links('pagination::bootstrap-5') }}
         </div>
         <div class="col-lg-6 col-md-6 col-sm-12">
-            
-    
+
+
     <div class='card'>
         <div class='card-body'>
             <h5>Other Employees</h5>
@@ -304,7 +304,7 @@
     <script>
         $(document).ready(function () {
 
-            
+
             $(".search-someone").on("keyup", function () {
                 const keyword = $(this).val().toLowerCase();
                 const $resultsDiv = $(".searched");
