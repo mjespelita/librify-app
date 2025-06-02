@@ -362,12 +362,22 @@
 
         versionLinks.append(`<a href="#${id}" class="version-link">Version ${release.tag_name}</a>`);
 
+        const releaseDateFormatted = new Date(release.published_at).toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+          timeZoneName: 'short' // Optional: shows timezone like GMT+X
+        });
+
         const card = $(`
           <div class="card mb-4 shadow-sm" id="${id}">
             <div class="card-body">
               <h3 class="card-title fw-bold">Version ${release.tag_name}</h3>
               <h6 class="card-subtitle text-muted mb-2">
-                Release Date: ${releaseDate} |
+                Release Date: ${releaseDateFormatted} |
                 <a href="${release.html_url}" target="_blank">${release.html_url}</a>
               </h6>
               <div class="d-flex align-items-center mb-3">
