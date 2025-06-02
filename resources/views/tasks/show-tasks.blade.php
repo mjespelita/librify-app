@@ -17,7 +17,7 @@
                                         <i class="fas fa-hourglass-half"></i> Task Pending
                                     </b>
                                 @endif
-        
+
                                 @if ($item->status === 'completed')
                                     <b class="text-success">
                                         <i class="fas fa-check-circle"></i> Task Completed
@@ -29,30 +29,30 @@
                                     </h1>
                                 </div>
                                 <div class="col-lg-12 col-md-12 col-sm-12">
-        
+
                                     {{-- timer con --}}
-                                    
+
                                     @if (App\Models\Tasktimelogs::where('tasks_id', $item->id)->count() === 0)
                                         <form action="{{ route('tasktimelogs.store') }}" method="POST">
                                             @csrf
-                                            
+
                                             {{-- Store start time automatically --}}
                                             <input hidden type="text" name="start_time" value="{{ now()->toDateTimeString() }}">
-                                    
+
                                             {{-- Store authenticated user ID --}}
                                             <input hidden type="text" name="users_id" value="{{ Auth::id() }}">
-                                    
+
                                             {{-- Store task-related IDs --}}
                                             <input hidden type="text" name="tasks_id" value="{{ $item->id }}">
                                             <input hidden type="text" name="tasks_projects_id" value="{{ $item->projects->id ?? '' }}">
                                             <input hidden type="text" name="tasks_projects_workspaces_id" value="{{ $item->workspaces->id ?? '' }}">
-                                    
+
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="fas fa-play"></i> Start Timer
                                             </button>
                                         </form>
                                     @endif
-                
+
                                     @if (App\Models\Tasktimelogs::where('tasks_id', $item->id)->whereNull('stop_time')->whereNull('pause_time')->exists())
                                         <form action="{{ route('tasktimelogs.pause', $item->id) }}" method="POST">
                                             @csrf
@@ -60,16 +60,16 @@
                                             <input type="hidden" name="pause_time" value="{{ now() }}">
                                             <button type="submit" class="btn btn-warning"><i class="fas fa-pause"></i> Pause Timer</button>
                                         </form>
-        
+
                                         <form action="{{ route('tasktimelogs.stop', $item->id) }}" method="POST">
                                             @csrf
                                             @method('PUT')
                                             <input type="hidden" name="pause_time" value="{{ now() }}">
                                             <button type="submit" class="btn btn-success mt-1"><i class="fas fa-check"></i> Mark As Complete</button>
                                         </form>
-        
+
                                     @endif
-                
+
                                     @if (App\Models\Tasktimelogs::where('tasks_id', $item->id)->whereNotNull('pause_time')->whereNull('stop_time')->exists())
                                         <form action="{{ route('tasktimelogs.resume', $item->id) }}" method="POST">
                                             @csrf
@@ -110,7 +110,7 @@
                 <div class='card-body'>
                     <div class='table-responsive'>
                         <table class='table'>
-                            
+
                             <tr>
                                 <th>Subject</th>
                                 <td>{{ $item->name }}</td>
@@ -119,7 +119,7 @@
                             <tr>
                                 <th>Settings</th>
                                 <td>
-                                    
+
                                     <div style="display: flex; gap: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 8px; font-family: Arial, sans-serif; font-size: 14px; align-items: center; flex-wrap: wrap;">
 
                                         <div style="display: flex; align-items: center; gap: 6px;">
@@ -130,17 +130,17 @@
                                                 </span>
                                             </span>
                                         </div>
-                                    
+
                                         <div style="display: flex; align-items: center; gap: 6px;">
                                             <i class="fas fa-clock" style="color: #3498db;"></i>
                                             <span><strong>Scheduled:</strong> {{ $item->isScheduled ? 'Yes' : 'No' }}</span>
                                         </div>
-                                    
+
                                         <div style="display: flex; align-items: center; gap: 6px;">
                                             <i class="fas fa-user-shield" style="color: #2ecc71;"></i>
                                             <span><strong>Audience:</strong> {{ $item->isPrivate ? 'Private' : 'Public' }}</span>
                                         </div>
-                                    
+
                                     </div>
                                 </td>
                             </tr>
@@ -149,32 +149,32 @@
                                 <th>Deadline</th>
                                 <td>{{ Smark\Smark\Dater::humanReadableDateWithDayAndTime($item->deadline) }} - {{ Carbon\Carbon::parse($item->deadline)->diffForHumans() }}</td>
                             </tr>
-                        
+
                             <tr>
                                 <th>Status</th>
                                 <td>{{ $item->status }}</td>
                             </tr>
-                        
+
                             <tr>
                                 <th>Project</th>
                                 <td>
-                                    <a class="fw-bold nav-link text-primary {{ !in_array(Auth::user()->role, ['admin', 'warehouse_admin', 'office_admin']) ? 'disabled-link' : '' }}" 
+                                    <a class="fw-bold nav-link text-primary {{ !in_array(Auth::user()->role, ['admin', 'warehouse_admin', 'office_admin']) ? 'disabled-link' : '' }}"
                                         href="{{ in_array(Auth::user()->role, ['admin', 'warehouse_admin', 'office_admin']) ? url('/show-projects/'.($item->projects->id ?? '')) : '#' }}">
                                          {{ $item->projects->name ?? 'No Data' }}
                                      </a>
                                 </td>
                             </tr>
-                            
+
                             <tr>
                                 <th>Workspace</th>
                                 <td>
-                                    <a class="fw-bold nav-link text-primary {{ !in_array(Auth::user()->role, ['admin', 'warehouse_admin', 'office_admin']) ? 'disabled-link' : '' }}" 
+                                    <a class="fw-bold nav-link text-primary {{ !in_array(Auth::user()->role, ['admin', 'warehouse_admin', 'office_admin']) ? 'disabled-link' : '' }}"
                                         href="{{ in_array(Auth::user()->role, ['admin', 'warehouse_admin', 'office_admin']) ? url('/show-workspaces/'.($item->workspaces->id ?? '')) : '#' }}">
                                          {{ $item->workspaces->name ?? 'No Data' }}
                                      </a>
                                 </td>
                             </tr>
-                            
+
 
                             <tr>
                                 <th>Lead Assignee</th>
@@ -196,10 +196,10 @@
                                         <b>No Supporting Members</b>
                                     @endforelse
 
-                                    
+
                                 </td>
                             </tr>
-            
+
                             <tr>
                                 <th>Created At</th>
                                 <td>{{ Smark\Smark\Dater::humanReadableDateWithDayAndTime($item->created_at) }}</td>
@@ -221,7 +221,7 @@
 
                         <form class="mt-4" action='{{ route('taskassignments.store') }}' method='POST'>
                             @csrf
-                            
+
                             <div class='form-group'>
                                 <label for='name'>Select Assignee</label>
                                 <select class="form-control" name="users_id" required>
@@ -242,7 +242,7 @@
                                         ->whereIn('id', $workspaceUsers) // Only include workspace participants
                                         ->orderBy('id', 'desc')
                                         ->get() as $user)
-                                        
+
                                         <option value="{{ $user->id }}">
                                             {{ $user->name }}
                                         </option>
@@ -256,17 +256,17 @@
                                 {{-- <label for='name'>Tasks_id</label> --}}
                                 <input type='text' class='form-control' hidden id='tasks_id' value="{{ $item->id }}" name='tasks_id' required>
                             </div>
-                        
+
                             <div class='form-group'>
                                 {{-- <label for='name'>Tasks_projects_id</label> --}}
                                 <input type='text' class='form-control' hidden id='tasks_projects_id' value="{{ $item->projects_id }}" name='tasks_projects_id' required>
                             </div>
-                        
+
                             <div class='form-group'>
                                 {{-- <label for='name'>Tasks_projects_workspaces_id</label> --}}
                                 <input type='text' class='form-control' hidden id='tasks_projects_workspaces_id' value="{{ $item->projects_workspaces_id }}" name='tasks_projects_workspaces_id' required>
                             </div>
-                        
+
                             <div class='form-group mt-4'>
                                 <label for='name'>Role</label>
                                 <select class="form-control" id="role" name="role" required>
@@ -291,19 +291,19 @@
                                 {{-- <label for='name'>Tasks_projects_workspaces_id</label> --}}
                                 <input type='checkbox' id='isLeadAssignee' name='isLeadAssignee'> Set as Lead Assignee
                             </div>
-                
+
                             <button type='submit' class='btn btn-primary mt-3'>Add Participant</button>
                         </form>
                     </div>
                 </div>
             @endif
-            
+
         </div>
         <div class="col-sm-12 col-md-6 col-lg-6">
             <div class='card'>
                 <div class='card-body'>
                     <h5>Comments</h5>
-                    
+
                     <div class='chat-container'>
 
                         <div style="align-items: center; justify-content: center; display: flex; height: 100%">
@@ -313,10 +313,10 @@
 
                         {{-- @forelse(App\Models\Comments::where('tasks_id', $item->id)->with('files')->get() as $comment)
                             @php $isMine = auth()->id() == $comment->users_id; @endphp
-                            <img class="mb-2 {{ $isMine ? 'mine' : 'other' }}" 
-                                src="{{ $comment->users?->profile_photo_path ? url('/storage/' . $comment->users?->profile_photo_path) : '/assets/profile_photo_placeholder.png' }}" 
+                            <img class="mb-2 {{ $isMine ? 'mine' : 'other' }}"
+                                src="{{ $comment->users?->profile_photo_path ? url('/storage/' . $comment->users?->profile_photo_path) : '/assets/profile_photo_placeholder.png' }}"
                                 height="40" width="40" style="border-radius: 50%;" alt="User Profile Photo">
-                            
+
                             <small class="{{ $isMine ? 'mine-name' : 'other-name' }}">
                                 {{ $comment->users?->name ?? 'no data' }} - {{ $comment->created_at->diffForHumans() }}
                             </small>
@@ -342,7 +342,7 @@
                     </div>
 
                     <script>
-                        
+
                     </script>
                 </div>
             </div>
@@ -354,36 +354,36 @@
 
                     <!-- Image Preview -->
 
-                    
+
 
                     <form action='{{ route('comments.store') }}' method='POST' enctype="multipart/form-data">
                         @csrf
 
-                        
+
                     <div id="image-preview"></div>
-                        
+
                         <div class='form-group'>
                             <label for='name'>Add Comment</label>
                             <textarea name="comment" id="" cols="20" rows="2" class="form-control" required></textarea>
                         </div>
 
                         <input type="file" id="fileInput" name="files[]" hidden multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv">
-                    
+
                         <div class='form-group'>
                             {{-- <label for='name'>Tasks_id</label> --}}
                             <input type='text' class='form-control' id='tasks_id' name='tasks_id' hidden required value="{{ $item->id }}">
                         </div>
-                    
+
                         <div class='form-group'>
                             {{-- <label for='name'>Tasks_projects_id</label> --}}
                             <input type='text' class='form-control' id='tasks_projects_id' name='tasks_projects_id' hidden required value="{{ $item->projects->id ?? 'no data' }}">
                         </div>
-                    
+
                         <div class='form-group'>
                             {{-- <label for='name'>Tasks_projects_workspaces_id</label> --}}
                             <input type='text' class='form-control' id='tasks_projects_workspaces_id' name='tasks_projects_workspaces_id' hidden required value="{{ $item->workspaces->id ?? 'no data' }}">
                         </div>
-                    
+
                         <div class='form-group'>
                             {{-- <label for='name'>Users_id</label> --}}
                             <input type='text' class='form-control' id='users_id' name='users_id' hidden required value="{{ Auth::user()->id }}">
@@ -393,7 +393,7 @@
                         <div class="upload-icon" onclick="document.getElementById('fileInput').click();">
                             <i class="fas fa-upload"></i>
                         </div>
-            
+
                         <button type='submit' class='btn btn-primary mt-3'>Send Comment</button>
                     </form>
 
@@ -402,18 +402,18 @@
                             const files = event.target.files;
                             const previewContainer = document.getElementById("image-preview");
                             previewContainer.innerHTML = ""; // Clear previous previews
-                    
+
                             Array.from(files).forEach((file) => {
                                 const div = document.createElement("div");
                                 div.classList.add("preview-container");
-                    
+
                                 const removeBtn = document.createElement("button");
                                 removeBtn.innerHTML = "×";
                                 removeBtn.classList.add("remove-btn");
                                 removeBtn.onclick = function () {
                                     div.remove();
                                 };
-                    
+
                                 if (file.type.startsWith("image/")) {
                                     const reader = new FileReader();
                                     reader.onload = function (e) {
@@ -452,7 +452,7 @@
     <script>
 
         $(document).ready(function () {
-            
+
             const urlSegments = window.location.pathname.split('/');
             const taskId = urlSegments[urlSegments.length - 1];
 
@@ -488,11 +488,22 @@
 
                         comments.forEach(comment => {
 
-                            let isMine = comment.users_id === comment.auth_id; // Compare users_id with auth_id
+                            let isMine = comment.users_id === comment.auth_id;
                             let positionClass = comment.comment_position; // 'left' or 'right'
-                            let userImage = comment.user.profile_photo_path 
-                                ? `/storage/${comment.user.profile_photo_path}` 
+                            let userImage = comment.user.profile_photo_path
+                                ? `/storage/${comment.user.profile_photo_path}`
                                 : "/assets/profile_photo_placeholder.png";
+
+                            // Function to convert URLs into clickable links
+                            function linkify(text) {
+                                const urlPattern = /(\bhttps?:\/\/[^\s]+)/gi;
+                                return text.replace(urlPattern, url => {
+                                    return `<a href="${url}" target="_blank" class="text-primary text-decoration-underline">${url}</a>`;
+                                });
+                            }
+
+                            // Apply linkify to the comment text
+                            let commentText = linkify(comment.comment);
 
                             let commentHTML = `
                                 <div class="chat-item ${positionClass}">
@@ -501,7 +512,7 @@
                                         ${comment.user.name} - ${new Date(comment.created_at).toLocaleString()}
                                     </small>
                                     <div class="chat-bubble">
-                                        <p>${comment.comment}</p>
+                                        <p>${commentText}</p>
                                     </div>
                                 </div>
                             `;
