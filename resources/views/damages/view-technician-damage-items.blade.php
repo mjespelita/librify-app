@@ -25,7 +25,7 @@
                                     <th>Name</th>
                                 </tr>
                             </thead>
-        
+
                             <tbody>
                                 <tr>
                                     <td><a class="nav-link {{ request()->is('damages') ? 'fw-bold text-success' : '' }}" href="{{ url('/damages') }}">All</a></td>
@@ -83,7 +83,7 @@
                         <div class='col-lg-4 col-md-4 col-sm-12 mt-2'>
                             <form action='{{ url('/damages-filter') }}' method='get'>
                                 <div class='input-group'>
-                                    <input type='date' class='form-control' id='from' name='from' required> 
+                                    <input type='date' class='form-control' id='from' name='from' required>
                                     <b class='pt-2'>- to -</b>
                                     <input type='date' class='form-control' id='to' name='to' required>
                                     <div class='input-group-append'>
@@ -105,7 +105,7 @@
                             </form>
                         </div>
                     </div>
-        
+
                     <div class='table-responsive'>
                         <table class='table table-striped'>
                             <thead>
@@ -127,7 +127,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-        
+
                             <tbody>
                                 @forelse($damages as $item)
                                     <tr>
@@ -177,14 +177,23 @@
                     </div>
                 </div>
             </div>
-        
+
             {{ $damages->links('pagination::bootstrap-5') }}
         </div>
     </div>
-    
+
     <script src='{{ url('assets/jquery/jquery.min.js') }}'></script>
     <script>
         $(document).ready(function () {
+
+            // filters
+
+            $(".selectTechnicianSearchBar").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $(".selectTechnicianSearchBarResult").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
 
             // checkbox
 
