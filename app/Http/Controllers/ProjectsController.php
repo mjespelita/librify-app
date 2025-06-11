@@ -101,7 +101,12 @@ class ProjectsController extends Controller {
         // Logs::create(['log' => Auth::user()->name.' updated a Projects from "'.$oldName.'" to "'.$request->name.'".']);
         /******************************************************** */
 
-        Projects::where('id', $projectsId)->update(['name' => $request->name,'workspaces_id' => $request->workspaces_id]);
+        $project = Projects::findOrFail($projectsId);
+
+        $project->name = $request->name;
+        $project->workspaces_id = $request->workspaces_id;
+
+        $project->save();
 
         return back()->with('success', 'Projects Updated Successfully!');
     }

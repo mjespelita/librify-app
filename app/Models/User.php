@@ -11,8 +11,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, Auditable
 {
     use HasApiTokens;
 
@@ -65,6 +66,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+        ];
+    }
+
+    use \OwenIt\Auditing\Auditable;
+
+    protected $auditExclude = ['id', 'password'];
+
+    public function generateTags(): array
+    {
+        return [
+            'id:' . $this->id,
         ];
     }
 

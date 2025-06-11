@@ -95,11 +95,13 @@ class SitesController extends Controller {
         // Logs::create(['log' => Auth::user()->name.' updated a sites from "'.$oldName.'" to "'.$request->name.'".']);
         /******************************************************** */
 
-        Sites::where('id', $sitesId)->update([
-            'name' => $request->name,
-            'phonenumber' => $request->phonenumber,
-            'google_map_link' => $request->google_map_link,
-        ]);
+        $site = Sites::findOrFail($sitesId);
+
+        $site->name = $request->name;
+        $site->phonenumber = $request->phonenumber;
+        $site->google_map_link = $request->google_map_link;
+
+        $site->save();
 
         return back()->with('success', 'Sites Updated Successfully!');
     }

@@ -63,7 +63,7 @@ class ItemsController extends Controller {
     }
 
     public function viewAddItemQuantityLogs($itemId)
-    {   
+    {
         $itemLogs = Itemlogs::where('items_id', $itemId)->paginate(10);
         return view('items.view-add-item-quantity-logs', [
             'itemLogs' => $itemLogs,
@@ -173,16 +173,18 @@ class ItemsController extends Controller {
         // Logs::create(['log' => Auth::user()->name.' ('.Auth::user()->role.') updated an items from "'.$oldName.'" to "'.$request->name.'".']);
         /******************************************************** */
 
-        Items::where('id', $itemsId)->update([
-            'name' => $request->name,
-            'model' => $request->model,
-            'brand' => $request->brand,
-            'types_id' => $request->types_id,
-            'description' => $request->description,
-            'quantity' => $request->quantity,
-            'serial_numbers' => $request->serial_numbers,
-            'unit' => $request->unit,
-        ]);
+        $item = Items::findOrFail($itemsId);
+
+        $item->name = $request->name;
+        $item->model = $request->model;
+        $item->brand = $request->brand;
+        $item->types_id = $request->types_id;
+        $item->description = $request->description;
+        $item->quantity = $request->quantity;
+        $item->serial_numbers = $request->serial_numbers;
+        $item->unit = $request->unit;
+
+        $item->save();
 
         return back()->with('success', 'Items Updated Successfully!');
     }

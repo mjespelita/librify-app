@@ -17,10 +17,10 @@ class WorkspacesController extends Controller {
         $addedByAdminType = Auth::user()->role;
 
         return view('workspaces.workspaces', [
-            'workspaces' => (Auth::user()->role === 'admin') ? 
-            
-            Workspaces::where('isTrash', '0')->paginate(10) : 
-            
+            'workspaces' => (Auth::user()->role === 'admin') ?
+
+            Workspaces::where('isTrash', '0')->paginate(10) :
+
             Workspaces::where(function ($query) use ($addedByAdminType) {
                     $query->where('added_by_admin_type', $addedByAdminType)
                         ->orWhere('added_by_admin_type', 'admin');
@@ -107,7 +107,11 @@ class WorkspacesController extends Controller {
         // Logs::create(['log' => Auth::user()->name.' updated a Workspaces from "'.$oldName.'" to "'.$request->name.'".']);
         /******************************************************** */
 
-        Workspaces::where('id', $workspacesId)->update(['name' => $request->name]);
+        $workspace = Workspaces::findOrFail($workspacesId);
+
+        $workspace->name = $request->name;
+
+        $workspace->save();
 
         return back()->with('success', 'Workspaces Updated Successfully!');
     }

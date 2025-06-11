@@ -1,115 +1,139 @@
-
 @extends('layouts.main')
 
 @section('content')
-    <div class='row'>
-        <div class='col-lg-6 col-md-6 col-sm-12'>
-            <h1>Activity Logs</h1>
-        </div>
-    </div>
-    
-    <div class='card'>
-        <div class='card-body'>
-            <div class='row'>
-                <div class='col-lg-4 col-md-4 col-sm-12 mt-2'>
-                    <div class='row'>
-                        <div class='col-12'>
-                            <form action='{{ url('/logs-paginate') }}' method='get'>
-                                <div class='input-group'>
-                                    <input type='number' name='paginate' class='form-control' placeholder='Paginate' value='{{ request()->get('paginate', 10) }}'>
-                                    <div class='input-group-append'>
-                                        <button class='btn btn-success' type='submit'><i class='fa fa-bars'></i></button>
-                                    </div>
-                                </div>
-                                @csrf
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class='col-lg-4 col-md-4 col-sm-12 mt-2'>
-                    <form action='{{ url('/logs-filter') }}' method='get'>
-                        <div class='input-group'>
-                            <input type='date' class='form-control' id='from' name='from' required> 
-                            <b class='pt-2'>- to -</b>
-                            <input type='date' class='form-control' id='to' name='to' required>
-                            <div class='input-group-append'>
-                                <button type='submit' class='btn btn-primary form-control'><i class='fas fa-filter'></i></button>
-                            </div>
-                        </div>
-                        @csrf
-                    </form>
-                </div>
-                <div class='col-lg-4 col-md-4 col-sm-12 mt-2'>
-                    <!-- Search Form -->
-                    <form action='{{ url('/logs-search') }}' method='GET'>
-                        <div class='input-group'>
-                            <input type='text' name='search' value='{{ request()->get('search') }}' class='form-control' placeholder='Search...'>
-                            <div class='input-group-append'>
-                                <button class='btn btn-success' type='submit'><i class='fa fa-search'></i></button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
 
-            <div class='table-responsive'>
-                <table class='table table-striped'>
-                    <thead>
-                        <tr>
-                            <th>Log</th>
-                            <th>Date and Time</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @forelse($logs as $item)
-                            <tr>
-                                <td>{{ $item->log }}</td>
-                                <td>{{ Smark\Smark\Dater::humanReadableDateWithDayAndTime($item->created_at) }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td>No Record...</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h1 style="font-size: 24px; margin: 0;">📝 System Logs</h1>
+        <button onclick="history.back()" style="text-decoration: none; background-color: #0d6efd; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">
+            ← Back
+        </button>
     </div>
 
-    {{ $logs->links('pagination::bootstrap-5') }}
+    <div style="background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 24px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
 
-    <script src='{{ url('assets/jquery/jquery.min.js') }}'></script>
-    <script>
-        $(document).ready(function () {
+        @forelse ($audits as $audit)
+            @php
+                $bgColor = '#f8f9fa';
+                $borderColor = '#ced4da';
+                $titleColor = '#212529';
 
-            // checkbox
+                if ($audit->event === 'created') {
+                    $bgColor = '#e9f7ef';
+                    $borderColor = '#28a745';
+                    $titleColor = '#28a745';
+                } elseif ($audit->event === 'updated') {
+                    $bgColor = '#fff3cd';
+                    $borderColor = '#ffc107';
+                    $titleColor = '#856404';
+                } elseif ($audit->event === 'deleted') {
+                    $bgColor = '#f8d7da';
+                    $borderColor = '#dc3545';
+                    $titleColor = '#721c24';
+                }
+            @endphp
 
-            var click = false;
-            $('.checkAll').on('click', function() {
-                $('.check').prop('checked', !click);
-                click = !click;
-                this.innerHTML = click ? 'Deselect' : 'Select';
-            });
+            <div style="background-color: {{ $bgColor }}; border: 1px solid {{ $borderColor }}; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                <p style="margin-bottom: 10px; font-size: 15px; color: {{ $titleColor }};">
+                    <strong>{{ $audit->user ? $audit->user->name : 'System' }}</strong>
+                    performed
+                    <strong style="text-transform: uppercase;">{{ $audit->event }}</strong>
+                    on
+                    <strong>{{ class_basename($audit->auditable_type) }} #{{ $audit->auditable_id }}</strong>
+                    at
+                    <em>{{ Smark\Smark\Dater::humanReadableDateWithDayAndTime($audit->created_at) }}</em>
+                </p>
 
-            $('.bulk-delete').click(function () {
-                let array = [];
-                $('.check:checked').each(function() {
-                    array.push($(this).attr('data-id'));
-                });
+                @php
+                    $pairs = explode(',', $audit->tags);
+                    $tagsArray = [];
+                    foreach ($pairs as $pair) {
+                        $parts = explode(':', $pair, 2);
+                        if(count($parts) == 2) {
+                            $tagsArray[$parts[0]] = $parts[1];
+                        }
+                    }
+                @endphp
 
+                @if (!empty($audit->tags))
+                    <details style="margin-bottom: 12px;">
+                        <summary style="font-weight: bold; color: #6c757d;">Tags</summary>
+                        <pre style="background-color: #fff; padding: 12px; border: 1px solid #ddd; border-radius: 5px;">{{ $audit->tags }}</pre>
+                    </details>
+                @endif
 
-                console.log('asdasd')
+                @if ($audit->event === 'updated')
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                        <thead>
+                            <tr style="background-color: #ffeeba;">
+                                <th style="padding: 8px; border: 1px solid #dee2e6;">Field</th>
+                                <th style="padding: 8px; border: 1px solid #dee2e6; color: #dc3545;">Old Value</th>
+                                <th style="padding: 8px; border: 1px solid #dee2e6; color: #28a745;">New Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($audit->new_values as $key => $value)
+                                @php $old = $audit->old_values[$key] ?? 'N/A'; @endphp
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #dee2e6;">{{ ucfirst($key) }}</td>
+                                    <td style="padding: 8px; border: 1px solid #dee2e6; color: #dc3545;">{{ $old }}</td>
+                                    <td style="padding: 8px; border: 1px solid #dee2e6; color: #28a745;">{{ $value }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @elseif ($audit->event === 'created')
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                        <thead>
+                            <tr style="background-color: #d4edda;">
+                                <th style="padding: 8px; border: 1px solid #dee2e6;">Field</th>
+                                <th style="padding: 8px; border: 1px solid #dee2e6; color: #28a745;">New Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($audit->new_values as $key => $value)
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #dee2e6;">{{ ucfirst($key) }}</td>
+                                    <td style="padding: 8px; border: 1px solid #dee2e6; color: #28a745;">{{ $value }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @elseif ($audit->event === 'deleted')
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                        <thead>
+                            <tr style="background-color: #f5c6cb;">
+                                <th style="padding: 8px; border: 1px solid #dee2e6;">Field</th>
+                                <th style="padding: 8px; border: 1px solid #dee2e6; color: #dc3545;">Deleted Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($audit->old_values as $key => $value)
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #dee2e6;">{{ ucfirst($key) }}</td>
+                                    <td style="padding: 8px; border: 1px solid #dee2e6; color: #dc3545;">{{ $value }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
 
-                $.post('/delete-all-bulk-data', {
-                    ids: array,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                }, function (res) {
-                    console.log(res)
-                    window.location.reload();
-                })
-            })
-        });
-    </script>
+                <p style="font-size: 12px; color: #6c757d; margin-top: 10px;">
+                    <strong>IP:</strong> {{ $audit->ip_address }} |
+                    <strong>URL:</strong> {{ $audit->url }} |
+                    <strong>Agent:</strong> {{ Str::limit($audit->user_agent, 60) }}
+                </p>
+            </div>
+
+        @empty
+            <div style="text-align: center; padding: 20px; background-color: #e2e3e5; color: #6c757d; border-radius: 6px;">
+                No audit logs available.
+            </div>
+        @endforelse
+
+        <div style="margin-top: 24px; text-align: center;">
+            {{ $audits->links('pagination::bootstrap-5') }}
+        </div>
+
+    </div>
+
 @endsection

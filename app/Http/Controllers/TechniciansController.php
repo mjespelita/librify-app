@@ -82,7 +82,7 @@ class TechniciansController extends Controller {
         ]);
 
         return back();
-        
+
     }
 
     /**
@@ -150,12 +150,21 @@ class TechniciansController extends Controller {
         // Logs::create(['log' => Auth::user()->name.' updated a Technicians from "'.$oldName.'" to "'.$request->name.'".']);
         /******************************************************** */
 
-        User::where('id', $techniciansId)->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role
-        ]);
+        // User::where('id', $techniciansId)->update([
+        //     'name' => $request->name,
+        //     'email' => $request->email,
+        //     'password' => Hash::make($request->password),
+        //     'role' => $request->role
+        // ]);
+
+        $user = User::findOrFail($techniciansId);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->role = $request->role;
+
+        $user->save();
 
         return back()->with('success', 'Technicians Updated Successfully!');
     }
@@ -181,7 +190,8 @@ class TechniciansController extends Controller {
         // Logs::create(['log' => Auth::user()->name.' deleted a Technicians "'.$oldName.'".']);
         /******************************************************** */
 
-        User::where('id', $techniciansId)->delete();
+        $user = User::findOrFail($techniciansId);
+        $user->delete();
 
         return redirect('/technicians');
     }

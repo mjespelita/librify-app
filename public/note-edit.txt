@@ -1,0 +1,18 @@
+public function transformAudit(array $data): array
+    {
+        // Handle 'new_values' user name transformation
+        if (isset($data['new_values']['users_id'])) {
+            $user = \App\Models\User::find($data['new_values']['users_id']);
+            $data['new_values']['user_name'] = optional($user)->name;
+            unset($data['new_values']['users_id']); // Hide the ID
+        }
+
+        // Handle 'old_values' user name transformation (for updates)
+        if (isset($data['old_values']['users_id'])) {
+            $user = \App\Models\User::find($data['old_values']['users_id']);
+            $data['old_values']['user_name'] = optional($user)->name;
+            unset($data['old_values']['users_id']); // Hide the ID
+        }
+
+        return $data;
+    }

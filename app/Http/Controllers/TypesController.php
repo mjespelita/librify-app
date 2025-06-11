@@ -90,7 +90,11 @@ class TypesController extends Controller {
         // Logs::create(['log' => Auth::user()->name.' updated a Types from "'.$oldName.'" to "'.$request->name.'".']);
         /******************************************************** */
 
-        Types::where('id', $typesId)->update(['name' => $request->name]);
+        $type = Types::findOrFail($typesId);
+
+        $type->name = $request->name;
+
+        $type->save();
 
         return back()->with('success', 'Types Updated Successfully!');
     }

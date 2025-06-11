@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Items extends Model
+class Items extends Model implements Auditable
 {
     /** @use HasFactory<\Database\Factories\ItemsFactory> */
 protected $fillable = [
@@ -20,6 +21,37 @@ protected $fillable = [
     "unit",
     "isTrash"];
     use HasFactory;
+
+    use \OwenIt\Auditing\Auditable;
+
+    protected $auditExclude = ['id'];
+
+    public function generateTags(): array
+    {
+        return [
+            'id:' . $this->id,
+        ];
+    }
+
+
+    public function transformAudit(array $data): array
+    {
+        // Handle 'new_values' user name transformation
+        if (isset($data['new_values']['types_id'])) {
+            $types = \App\Models\Types::find($data['new_values']['types_id']);
+            $data['new_values']['type_name'] = optional($types)->name;
+            unset($data['new_values']['types_id']); // Hide the ID
+        }
+
+        // Handle 'old_values' types name transformation (for updates)
+        if (isset($data['old_values']['types_id'])) {
+            $types = \App\Models\Types::find($data['old_values']['types_id']);
+            $data['old_values']['type_name'] = optional($types)->name;
+            unset($data['old_values']['types_id']); // Hide the ID
+        }
+
+        return $data;
+    }
 
     public function types()
     {
