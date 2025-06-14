@@ -81,3 +81,15 @@ ok - employee profiling
 ok - fix the my-task page of employee dashboard face
 ok - edit the edit task - priority update
 ok - fix calendar - unreliable date
+
+
+
+
+
+June 14, 2025 - Saturday =========================
+
+new update still in progress - chat system
+
+1. link in the message
+2. send files
+3. unread/seen features

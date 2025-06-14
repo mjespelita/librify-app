@@ -65,7 +65,7 @@
                                 data-name="${chat.chat_name}"
                                 style="display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #ddd; padding: 8px; margin-bottom: 8px; border-radius: 5px; cursor: pointer;">
 
-                                <img src="${chat.receiver_profile_picture ? 'storage/' + chat.receiver_profile_picture : 'assets/profile_photo_placeholder.png'}"
+                                <img src="/${chat.receiver_profile_picture ? 'storage/' + chat.receiver_profile_picture : 'assets/profile_photo_placeholder.png'}"
                                     alt="${chat.receiver_name}"
                                     style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
 
