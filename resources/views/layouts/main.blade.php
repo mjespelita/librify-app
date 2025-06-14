@@ -282,9 +282,383 @@
 
         <div class='content'>
             @yield('content')
+
+            <!-- Toggle Button -->
+            <button id="toggleButton">
+                <i class="fas fa-user"></i>
+            </button>
+
+            <!-- Dark background overlay -->
+            <div id="overlay" style="display: none;"></div>
+
+            <!-- Styles -->
+        <style>
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+            }
+
+            /* SIDEBAR */
+            #friendsSidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                max-width: 30%;
+                height: 100vh;
+                background: #ffffff;
+                border-right: 1px solid #e0e0e0;
+                padding: 1rem;
+                overflow-y: auto;
+                display: none;
+                z-index: 1001;
+                box-shadow: 4px 0 12px rgba(0, 0, 0, 0.05);
+            }
+
+            .friend {
+                padding: 12px 16px;
+                margin-bottom: 10px;
+                background: #f8f9fa;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                cursor: pointer;
+                transition: all 0.2s ease-in-out;
+                border: 1px solid transparent;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            }
+
+            .friend:hover {
+                background: #e9f5ff;
+                border-color: #007bff;
+                transform: translateY(-2px);
+            }
+
+            /* TOGGLE FAB */
+            #toggleButton {
+                position: fixed;
+                bottom: 6rem;
+                right: 2rem;
+                width: 56px;
+                height: 56px;
+                background: linear-gradient(135deg, #005f9f, #0084ff);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+                transition: background 0.3s, transform 0.2s;
+            }
+
+            #toggleButton:hover {
+                transform: scale(1.1);
+                background: linear-gradient(135deg, #0072ce, #009bff);
+            }
+
+            /* OVERLAY */
+            #overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(3px);
+                z-index: 1000;
+                display: none;
+            }
+
+            /* CHATBOX */
+            .chatbox {
+                width: 100%;
+                max-width: 400px;
+                height: 50vh;
+                background: white;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .chatbox-header {
+                background: #0C8EFD;
+                color: white;
+                padding: 12px 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: bold;
+            }
+
+            .chatbox-body {
+                padding: 10px;
+                flex: 1;
+                overflow-y: auto;
+            }
+
+            .chatbox-footer {
+                padding: 8px;
+                border-top: 1px solid #ccc;
+            }
+
+            .chatbox-footer input {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 16px;
+            }
+
+            /* MESSAGES */
+            .chat-msg {
+                display: flex;
+                margin: 10px 0;
+            }
+
+            .chat-msg.mine {
+                justify-content: flex-end;
+            }
+
+            .chat-msg.other {
+                justify-content: flex-start;
+            }
+
+            .chat-msg .bubble {
+                padding: 10px 14px;
+                border-radius: 18px;
+                max-width: 80%;
+                position: relative;
+                font-size: 14px;
+                color: #000;
+                word-break: break-word;
+            }
+
+            .chat-msg.other .bubble {
+                background-color: #cacaca;
+            }
+
+            .chat-msg.other .bubble::after {
+                content: "";
+                position: absolute;
+                top: 10px;
+                left: -6px;
+                width: 0;
+                height: 0;
+                border-top: 8px solid transparent;
+                border-right: 8px solid #cacaca;
+                border-bottom: 8px solid transparent;
+            }
+
+            .chat-msg.mine .bubble {
+                background: linear-gradient(135deg, #0084ff, #44bef1);
+                color: white;
+            }
+
+            .chat-msg.mine .bubble::after {
+                content: "";
+                position: absolute;
+                top: 10px;
+                right: -6px;
+                width: 0;
+                height: 0;
+                border-top: 8px solid transparent;
+                border-left: 8px solid #44bef1;
+                border-bottom: 8px solid transparent;
+            }
+
+            .timestamp {
+                font-size: 11px;
+                margin-top: 5px;
+                color: #000000;
+                text-align: right;
+            }
+
+            /* MEDIA QUERY FOR MOBILE */
+            @media (max-width: 768px) {
+                #friendsSidebar {
+                    width: 100%;
+                    max-width: none;
+                    padding: 0.8rem;
+                }
+
+                .chatbox {
+                    width: 100%;
+                    height: 100vh;
+                    border-radius: 0;
+                }
+
+                #toggleButton {
+                    width: 50px;
+                    height: 50px;
+                    bottom: 6rem;
+                    right: 1rem;
+                    font-size: 20px;
+                }
+
+                .chatbox-footer input {
+                    padding: 10px;
+                    font-size: 14px;
+                }
+
+                .chat-msg .bubble {
+                    font-size: 13px;
+                    max-width: 85%;
+                }
+            }
+            </style>
+
+            <!-- Make sure this comes BEFORE the script -->
+            <x-side-chat :chats="App\Models\Chats::all()" />
+
+            <!-- Chatbox Container -->
+            <div id="chatboxes-container" style="position: fixed; bottom: 0; right: 90px; display: flex; gap: 10px; z-index: 1200;"></div>
+
         </div>
 
+        <!-- jQuery CDN -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        {{-- <script src="{{ url('assets/pollinator/pollinator.min.js') }}"></script>
+        <script src="{{ url('assets/pollinator/polly.js') }}"></script> --}}
+
+        <!-- Script should be AFTER x-side-chat -->
+        <script>
+            $(document).ready(function () {
+                $('#toggleButton').click(function () {
+                    $('#friendsSidebar').fadeToggle(200);
+                    $('#overlay').fadeToggle(200);
+                });
+
+                $('#overlay').click(function () {
+                    $('#friendsSidebar').fadeOut(200);
+                    $('#overlay').fadeOut(200);
+                });
+
+                $('.friend').click(function () {
+                    const name = $(this).data('name');
+                    const friend_id = $(this).data('id'); // ✅ get friend ID
+
+                    // Prevent duplicate chatboxes
+                    if ($('#chatbox-' + friend_id).length > 0) return;
+
+                    let auth_id = null; // This is the current logged-in user's ID
+
+                    $.get('/user', function (res) {
+                        auth_id = res.id;
+
+                        // create new chat
+
+                        $.get('/initialize-chat/' + auth_id + '/' + friend_id, function (res) {
+
+                            const polling = new PollingManager({
+                                url: `/fetch-messages/${res}`, // API to fetch data
+                                delay: 5000, // Poll every 5 seconds
+                                failRetryCount: 3, // Retry on failure
+                                onSuccess: (messageResponse) => {
+                                    console.log(messageResponse);
+
+                                    const chatId = messageResponse.chatId;
+                                    const chatboxSelector = `#chatbox-${chatId}`;
+
+                                    // Build messages HTML
+                                    let messageHtml = '';
+                                    messageResponse.messages.forEach(msg => {
+                                        const isMine = msg.users_id === auth_id;
+
+                                        const timestamp = new Date(msg.created_at).toLocaleString('en-US', {
+                                            weekday: 'long',
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                            hour: 'numeric',
+                                            minute: '2-digit',
+                                            hour12: true,
+                                        });
+
+                                        messageHtml += `
+                                            <div class="chat-msg ${isMine ? 'mine' : 'other'}">
+                                                <div class="bubble">
+                                                    ${msg.message}
+                                                    <div class="timestamp">${timestamp}</div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    });
+
+                                    // If chatbox already exists, update messages only
+                                    if ($(chatboxSelector).length > 0) {
+                                        $(`${chatboxSelector} .chatbox-body`).html(messageHtml);
+                                    } else {
+                                        // Otherwise, create a new chatbox
+                                        const chatbox = `
+                                            <div class="chatbox" id="chatbox-${chatId}">
+                                                <div class="chatbox-header">
+                                                    <span>${messageResponse.chat.name}</span>
+                                                    <button class="close-chat" title="Close"
+                                                            style="background:none;border:none;color:white;font-size:16px;">&times;</button>
+                                                </div>
+
+                                                <div class="chatbox-body">
+                                                    ${messageHtml}
+                                                </div>
+
+                                                <div class="chatbox-footer">
+                                                    <input type="text" class="chat-input" placeholder="Type a message…">
+                                                    <button class="send-btn" title="Send">
+                                                        <i class="fas fa-paper-plane"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `;
+
+                                        $('#chatboxes-container').append(chatbox);
+
+                                        // Attach event listener to that specific chatbox's send button
+                                        $(`#chatbox-${chatId} .send-btn`).click(function () {
+                                            let chatInput = $(`#chatbox-${chatId} .chat-input`).val();
+                                            let usersId = auth_id;
+
+                                            $.post('/send-chat', {
+                                                'message': chatInput,
+                                                'chats_id': chatId,
+                                                'senders_id': usersId,
+                                                "_token": $('meta[name="csrf-token"]').attr('content')
+                                            }, function (res) {
+                                                console.log(res);
+                                                $(`#chatbox-${chatId} .chat-input`).val("");
+                                            }).fail(err => {
+                                                console.log(err);
+                                            });
+                                        });
+                                    }
+                                },
+                                onError: (error) => {
+                                    console.error("Error fetching data:", error);
+                                    // Your custom error handling logic
+                                }
+                            });
+
+                            // Start polling
+                            polling.start();
+
+                        }).fail(err => {
+                            console.log(err)
+                        });
+
+                    })
+                });
+
+                // Delegate close event
+                $(document).on('click', '.close-chat', function () {
+                    $(this).closest('.chatbox').remove();
+                });
+            });
+        </script>
 
         {{-- apex charts --}}
 
@@ -339,7 +713,6 @@
          overflow: hidden;
        }
        .chatbox-header {
-         background: #F88B22;
          color: white;
          padding: 10px;
          font-weight: bold;

@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Carbon\Carbon;
+use App\Models\Chat;
+use Illuminate\Support\Facades\DB;
 
 // end of import
 
@@ -101,6 +103,24 @@ use Smark\Smark\PDFer;
 
 // end of import
 
+use App\Http\Controllers\ChatsController;
+use App\Models\Chats;
+
+// end of import
+
+use App\Http\Controllers\ChatparticipantsController;
+use App\Models\Chatparticipants;
+
+// end of import
+
+use App\Http\Controllers\MessagesController;
+use App\Models\Messages;
+
+// end of import
+
+
+
+
 Route::get('/', function () {
     return redirect('/dashboard');
 });
@@ -180,6 +200,186 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
+
+    Route::get('/user', function () {
+        return response()->json(Auth::user());
+    });
+
+    // CHAT ROUTES
+
+    // Route::get('/initialize-chat/{usersId}/{recieversId}', function ($usersId, $recieversId) {
+    //     // create a chat initialization
+
+    //     $user = User::where('id', $usersId)->value('name');
+    //     $reciever = User::where('id', $recieversId)->value('name');
+
+    //     $newChat = Chats::create([
+    //         'name' => $user.' - '.$reciever,
+    //         'is_group' => 0,
+    //         'users_id' => $usersId
+    //     ]);
+
+    //     Chatparticipants::create([
+    //         'chats_id' => $newChat->id,
+    //         'chats_users_id' => $usersId,
+    //         'users_id' => $usersId
+    //     ]);
+
+    //     Chatparticipants::create([
+    //         'chats_id' => $newChat->id,
+    //         'chats_users_id' => $usersId,
+    //         'users_id' => $recieversId
+    //     ]);
+
+    //     Messages::create([
+    //         'chats_id' => $newChat->id,
+    //         'chats_users_id' => $usersId,
+    //         'users_id' => $usersId,
+    //         'message' => $user.' started a new chat!',
+    //     ]);
+
+    //     return response()->json($newChat->id);
+
+    // });
+
+    Route::get('/initialize-chat/{usersId}/{recieversId}', function ($usersId, $recieversId) {
+        // Check if a chat already exists with both users (not a group chat)
+        $existingChat = DB::table('chats')
+            ->join('chatparticipants as cp1', 'chats.id', '=', 'cp1.chats_id')
+            ->join('chatparticipants as cp2', 'chats.id', '=', 'cp2.chats_id')
+            ->where('chats.is_group', 0)
+            ->where('cp1.users_id', $usersId)
+            ->where('cp2.users_id', $recieversId)
+            ->select('chats.id')
+            ->first();
+
+        if ($existingChat) {
+            // Chat already exists, return existing chat ID
+            return response()->json($existingChat->id);
+        }
+
+        // Create a new chat
+        $user = User::where('id', $usersId)->value('name');
+        $reciever = User::where('id', $recieversId)->value('name');
+
+        $newChat = Chats::create([
+            'name' => $user . ' - ' . $reciever,
+            'is_group' => 0,
+            'users_id' => $usersId
+        ]);
+
+        Chatparticipants::create([
+            'chats_id' => $newChat->id,
+            'chats_users_id' => $usersId,
+            'users_id' => $usersId
+        ]);
+
+        Chatparticipants::create([
+            'chats_id' => $newChat->id,
+            'chats_users_id' => $usersId,
+            'users_id' => $recieversId
+        ]);
+
+        Messages::create([
+            'chats_id' => $newChat->id,
+            'chats_users_id' => $usersId,
+            'users_id' => $usersId,
+            'message' => $user . ' started a new chat!',
+        ]);
+
+        return response()->json($newChat->id);
+    });
+
+    Route::post('/send-chat', function (Request $request) {
+
+        $request->validate([
+            'message' => 'required',
+            'senders_id' => 'required',
+            'chats_id' => 'required',
+        ]);
+
+        // get the chat users id (chat creator)
+
+        $chatCreator = Chats::where('id', $request->chats_id)->value('users_id');
+
+        Messages::create([
+            'message' => $request->message,
+            'chats_id' => $request->chats_id,
+            'chats_users_id' => $chatCreator,
+            'users_id' => $request->senders_id,
+        ]);
+
+        return response()->json('message sent');
+
+    });
+
+    Route::get('/fetch-messages/{chatsId}', function ($chatsId) {
+        $chat = Chats::where('id', $chatsId)->first();
+        $messages = Messages::where('chats_id', $chatsId)->get();
+        return response()->json([
+            'chatId' => $chatsId,
+            'chat' => $chat,
+            'messages' => $messages,
+        ]);
+    });
+
+    // Route::get('/chat-history', function () {
+
+    //     $chats = Chats::whereHas('chatParticipants', function ($query) {
+    //         $query->where('users_id', Auth::user()->id);
+    //     })->get();
+
+    //     $lastMessage =
+
+    //     return response()->json($chats);
+    // });
+
+    // Route::get('/chat-history', function () {
+    //     $chats = Chats::with(['messages']) // eager load latest message
+    //         ->whereHas('chatParticipants', function ($query) {
+    //             $query->where('users_id', Auth::user()->id);
+    //         })->get();
+
+    //     return response()->json($chats);
+    // });
+
+    Route::get('/chat-history', function () {
+        $authId = Auth::user()->id;
+
+        $chats = Chats::with([
+            'chatParticipants.users',     // ✅ load participant user info (uses your model)
+            'messages'                    // ✅ load all messages to extract the latest
+        ])
+        ->whereHas('chatParticipants', function ($query) use ($authId) {
+            $query->where('users_id', $authId);
+        })
+        ->get()
+        ->map(function ($chat) use ($authId) {
+            // Find the receiver (not the auth user)
+            $receiver = $chat->chatParticipants
+                ->where('users_id', '!=', $authId)
+                ->first()
+                ?->users; // uses your Chatparticipants model's users() relationship
+
+            // Get latest message
+            $latestMessage = $chat->messages->sortByDesc('created_at')->first();
+
+            return [
+                'chat_id' => $chat->id,
+                'chat_name' => $chat->name,
+                'receiver_id' => $receiver?->id,
+                'receiver_name' => $receiver?->name,
+                'receiver_profile_picture' => $receiver?->profile_photo_path,
+                'latest_message' => $latestMessage?->message,
+                'latest_message_at' => $latestMessage?->created_at,
+            ];
+        });
+
+        return response()->json($chats);
+    });
+
+    // END CHAT ROUTES
+
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard')->middleware(AuthMiddleware::class);
@@ -1949,6 +2149,222 @@ Route::middleware([
 
         // Return the view with tasktimelogs and the selected date range
         return view('tasktimelogs.tasktimelogs', compact('tasktimelogs', 'from', 'to'));
+    });
+
+    // end...
+
+    Route::get('/chats', [ChatsController::class, 'index'])->name('chats.index');
+    Route::get('/create-chats', [ChatsController::class, 'create'])->name('chats.create');
+    Route::get('/edit-chats/{chatsId}', [ChatsController::class, 'edit'])->name('chats.edit');
+    Route::get('/show-chats/{chatsId}', [ChatsController::class, 'show'])->name('chats.show');
+    Route::get('/delete-chats/{chatsId}', [ChatsController::class, 'delete'])->name('chats.delete');
+    Route::get('/destroy-chats/{chatsId}', [ChatsController::class, 'destroy'])->name('chats.destroy');
+    Route::post('/store-chats', [ChatsController::class, 'store'])->name('chats.store');
+    Route::post('/update-chats/{chatsId}', [ChatsController::class, 'update'])->name('chats.update');
+    Route::post('/chats-delete-all-bulk-data', [ChatsController::class, 'bulkDelete']);
+    Route::post('/chats-move-to-trash-all-bulk-data', [ChatsController::class, 'bulkMoveToTrash']);
+    Route::post('/chats-restore-all-bulk-data', [ChatsController::class, 'bulkRestore']);
+    Route::get('/trash-chats', [ChatsController::class, 'trash']);
+    Route::get('/restore-chats/{chatsId}', [ChatsController::class, 'restore'])->name('chats.restore');
+
+    // Chats Search
+    Route::get('/chats-search', function (Request $request) {
+        $search = $request->get('search');
+
+        // Perform the search logic
+        $chats = Chats::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', "%$search%");
+        })->paginate(10);
+
+        return view('chats.chats', compact('chats', 'search'));
+    });
+
+    // Chats Paginate
+    Route::get('/chats-paginate', function (Request $request) {
+        // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
+        $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
+
+        // Paginate the chats based on the 'paginate' value
+        $chats = Chats::paginate($paginate); // Paginate with the specified number of items per page
+
+        // Return the view with the paginated chats
+        return view('chats.chats', compact('chats'));
+    });
+
+    // Chats Filter
+    Route::get('/chats-filter', function (Request $request) {
+        // Retrieve 'from' and 'to' dates from the URL
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        // Retrieve 'from' and 'to' dates from the URL
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        // Default query for chats
+        $query = Chats::query();
+
+        // Convert dates to Carbon instances for better comparison
+        $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
+        $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
+
+        // Check if both 'from' and 'to' dates are provided
+        if ($fromDate && $toDate) {
+            // Ensure correct date filtering with full day range
+            $chats = $query->whereBetween('created_at', [$fromDate, $toDate])
+                           ->orderBy('created_at', 'desc')
+                           ->paginate(10);
+        } else {
+            // If 'from' or 'to' are missing, show all chats without filtering
+            $chats = $query->paginate(10);
+        }
+
+        // Return the view with chats and the selected date range
+        return view('chats.chats', compact('chats', 'from', 'to'));
+    });
+
+    // end...
+
+    Route::get('/chatparticipants', [ChatparticipantsController::class, 'index'])->name('chatparticipants.index');
+    Route::get('/create-chatparticipants', [ChatparticipantsController::class, 'create'])->name('chatparticipants.create');
+    Route::get('/edit-chatparticipants/{chatparticipantsId}', [ChatparticipantsController::class, 'edit'])->name('chatparticipants.edit');
+    Route::get('/show-chatparticipants/{chatparticipantsId}', [ChatparticipantsController::class, 'show'])->name('chatparticipants.show');
+    Route::get('/delete-chatparticipants/{chatparticipantsId}', [ChatparticipantsController::class, 'delete'])->name('chatparticipants.delete');
+    Route::get('/destroy-chatparticipants/{chatparticipantsId}', [ChatparticipantsController::class, 'destroy'])->name('chatparticipants.destroy');
+    Route::post('/store-chatparticipants', [ChatparticipantsController::class, 'store'])->name('chatparticipants.store');
+    Route::post('/update-chatparticipants/{chatparticipantsId}', [ChatparticipantsController::class, 'update'])->name('chatparticipants.update');
+    Route::post('/chatparticipants-delete-all-bulk-data', [ChatparticipantsController::class, 'bulkDelete']);
+    Route::post('/chatparticipants-move-to-trash-all-bulk-data', [ChatparticipantsController::class, 'bulkMoveToTrash']);
+    Route::post('/chatparticipants-restore-all-bulk-data', [ChatparticipantsController::class, 'bulkRestore']);
+    Route::get('/trash-chatparticipants', [ChatparticipantsController::class, 'trash']);
+    Route::get('/restore-chatparticipants/{chatparticipantsId}', [ChatparticipantsController::class, 'restore'])->name('chatparticipants.restore');
+
+    // Chatparticipants Search
+    Route::get('/chatparticipants-search', function (Request $request) {
+        $search = $request->get('search');
+
+        // Perform the search logic
+        $chatparticipants = Chatparticipants::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', "%$search%");
+        })->paginate(10);
+
+        return view('chatparticipants.chatparticipants', compact('chatparticipants', 'search'));
+    });
+
+    // Chatparticipants Paginate
+    Route::get('/chatparticipants-paginate', function (Request $request) {
+        // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
+        $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
+
+        // Paginate the chatparticipants based on the 'paginate' value
+        $chatparticipants = Chatparticipants::paginate($paginate); // Paginate with the specified number of items per page
+
+        // Return the view with the paginated chatparticipants
+        return view('chatparticipants.chatparticipants', compact('chatparticipants'));
+    });
+
+    // Chatparticipants Filter
+    Route::get('/chatparticipants-filter', function (Request $request) {
+        // Retrieve 'from' and 'to' dates from the URL
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        // Retrieve 'from' and 'to' dates from the URL
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        // Default query for chatparticipants
+        $query = Chatparticipants::query();
+
+        // Convert dates to Carbon instances for better comparison
+        $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
+        $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
+
+        // Check if both 'from' and 'to' dates are provided
+        if ($fromDate && $toDate) {
+            // Ensure correct date filtering with full day range
+            $chatparticipants = $query->whereBetween('created_at', [$fromDate, $toDate])
+                           ->orderBy('created_at', 'desc')
+                           ->paginate(10);
+        } else {
+            // If 'from' or 'to' are missing, show all chatparticipants without filtering
+            $chatparticipants = $query->paginate(10);
+        }
+
+        // Return the view with chatparticipants and the selected date range
+        return view('chatparticipants.chatparticipants', compact('chatparticipants', 'from', 'to'));
+    });
+
+    // end...
+
+    Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
+    Route::get('/create-messages', [MessagesController::class, 'create'])->name('messages.create');
+    Route::get('/edit-messages/{messagesId}', [MessagesController::class, 'edit'])->name('messages.edit');
+    Route::get('/show-messages/{messagesId}', [MessagesController::class, 'show'])->name('messages.show');
+    Route::get('/delete-messages/{messagesId}', [MessagesController::class, 'delete'])->name('messages.delete');
+    Route::get('/destroy-messages/{messagesId}', [MessagesController::class, 'destroy'])->name('messages.destroy');
+    Route::post('/store-messages', [MessagesController::class, 'store'])->name('messages.store');
+    Route::post('/update-messages/{messagesId}', [MessagesController::class, 'update'])->name('messages.update');
+    Route::post('/messages-delete-all-bulk-data', [MessagesController::class, 'bulkDelete']);
+    Route::post('/messages-move-to-trash-all-bulk-data', [MessagesController::class, 'bulkMoveToTrash']);
+    Route::post('/messages-restore-all-bulk-data', [MessagesController::class, 'bulkRestore']);
+    Route::get('/trash-messages', [MessagesController::class, 'trash']);
+    Route::get('/restore-messages/{messagesId}', [MessagesController::class, 'restore'])->name('messages.restore');
+
+    // Messages Search
+    Route::get('/messages-search', function (Request $request) {
+        $search = $request->get('search');
+
+        // Perform the search logic
+        $messages = Messages::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', "%$search%");
+        })->paginate(10);
+
+        return view('messages.messages', compact('messages', 'search'));
+    });
+
+    // Messages Paginate
+    Route::get('/messages-paginate', function (Request $request) {
+        // Retrieve the 'paginate' parameter from the URL (e.g., ?paginate=10)
+        $paginate = $request->input('paginate', 10); // Default to 10 if no paginate value is provided
+
+        // Paginate the messages based on the 'paginate' value
+        $messages = Messages::paginate($paginate); // Paginate with the specified number of items per page
+
+        // Return the view with the paginated messages
+        return view('messages.messages', compact('messages'));
+    });
+
+    // Messages Filter
+    Route::get('/messages-filter', function (Request $request) {
+        // Retrieve 'from' and 'to' dates from the URL
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        // Retrieve 'from' and 'to' dates from the URL
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        // Default query for messages
+        $query = Messages::query();
+
+        // Convert dates to Carbon instances for better comparison
+        $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
+        $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
+
+        // Check if both 'from' and 'to' dates are provided
+        if ($fromDate && $toDate) {
+            // Ensure correct date filtering with full day range
+            $messages = $query->whereBetween('created_at', [$fromDate, $toDate])
+                           ->orderBy('created_at', 'desc')
+                           ->paginate(10);
+        } else {
+            // If 'from' or 'to' are missing, show all messages without filtering
+            $messages = $query->paginate(10);
+        }
+
+        // Return the view with messages and the selected date range
+        return view('messages.messages', compact('messages', 'from', 'to'));
     });
 
     // end...

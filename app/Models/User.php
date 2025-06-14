@@ -129,4 +129,19 @@ class User extends Authenticatable implements MustVerifyEmail, Auditable
     {
         return $this->hasMany(InternalNotification::class);
     }
+
+    public function chats()
+    {
+        return $this->hasMany(Chats::class);
+    }
+
+    public function chatParticipants()
+    {
+        return $this->hasMany(Chatparticipants::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Messages::class);
+    }
 }
